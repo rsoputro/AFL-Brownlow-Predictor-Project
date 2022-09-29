@@ -8,11 +8,12 @@ Install dependancies ( Warning this might take a while, try importing first to s
 install.packages("caret", dependencies = c("Depends", "Suggests"))
 ```
 
+
 Import Dependancies
 ```{r}
 library(caret)
-source("DBDA2E-utilities.R") 
-source("MoreUtilities.R")
+source("../../utilities/DBDA2E-utilities.R") 
+source("../../utilities/MoreUtilities.R")
 library(ggplot2)
 library(ggpubr)
 library(ks)
@@ -23,7 +24,7 @@ library(benchmarkme)
 
 Load in the Raw Stats
 ```{r}
-raw_stats = read.csv("data/raw_stats.csv")
+raw_stats = read.csv("../../data/raw_stats.csv")
 ```
 
 Splitting the raw_stats into train and test sets, with 10% test and 90% training data
@@ -33,15 +34,15 @@ Splitting the raw_stats into train and test sets, with 10% test and 90% training
 set.seed(3456)
 trainIndex <- createDataPartition(raw_stats$Brownlow.Votes, p = .9, list = FALSE, times = 1)
 # Write train and test sets to files.
-write.csv(raw_stats[ trainIndex,], "data/train_set.csv", row.names=FALSE)
-write.csv(raw_stats[-trainIndex,], "data/test_set.csv", row.names=FALSE)
+write.csv(raw_stats[ trainIndex,], "../../data/train_set.csv", row.names=FALSE)
+write.csv(raw_stats[-trainIndex,], "../../data/test_set.csv", row.names=FALSE)
 ```
 
 #### Analysis of Split
 Read train and test sets from files.
 ```{r}
-train <- read.csv("data/train_set.csv")
-test <- read.csv("data/test_set.csv")
+train <- read.csv("../../data/train_set.csv")
+test <- read.csv("../../data/test_set.csv")
 ```
 
 
@@ -95,17 +96,6 @@ histCompare(train$CarParks, test$CarParks, "Car Parks Train vs Test", "Car Parks
 histCompare(train$PropertyType, test$PropertyType, "Property Type Train vs Test", "Property Type")
 ```
 
-# Modelling
 
-
-
-### JAGS Model
-
-
-### Run JAGS
-
-
-
-### Results
 
 

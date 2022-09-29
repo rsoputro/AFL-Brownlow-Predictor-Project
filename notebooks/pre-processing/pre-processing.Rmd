@@ -11,8 +11,8 @@ This project was conducted by Thomas Johnstone, Richard, and Luke Mason, with su
 ##### Import Packages and source code
 These are the necesery packages and code needed to run the following code samples.
 ```{r}
-source("DBDA2E-utilities.R") 
-source("MoreUtilities.R")
+source("../../utilities/DBDA2E-utilities.R") 
+source("../../utilities/MoreUtilities.R")
 library(ggplot2)
 library(ggpubr)
 library(ks)
@@ -24,7 +24,7 @@ library(benchmarkme)
 
 ## Load in the Raw Stats
 ```{r}
-raw_stats = read.csv("data/raw_stats.csv")
+raw_stats = read.csv("../../data/raw_stats.csv")
 ```
 
 ## Exploratory Data Analysis

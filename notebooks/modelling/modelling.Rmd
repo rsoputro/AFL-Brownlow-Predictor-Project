@@ -1,0 +1,23 @@
+---
+title: "AFL Modelling"
+output: html_notebook
+---
+
+Read train and test sets from files.
+```{r}
+train <- read.csv("../../data/train_set.csv")
+test <- read.csv("../../data/test_set.csv")
+```
+
+# Modelling
+
+
+
+### JAGS Model
+
+
+### Run JAGS
+
+
+
+### Results
