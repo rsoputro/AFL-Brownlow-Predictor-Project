@@ -27,6 +27,7 @@ library(benchmarkme)
 raw_stats = read.csv("../../data/raw_stats.csv")
 ```
 
+
 ## Exploratory Data Analysis
 
 ### Attach the data to memory
@@ -49,31 +50,23 @@ summary(raw_stats)
 These are the histograms of each stat field for all games over 10 years.
 
 ##### Disposal Analysis
-```{r}
-hist(Disposals, xlab="Disposals", main="Count of Disposals")
-```
 
-# TODO Change this A2 stuff into A3 fields
 ```{r}
-hist(Area, xlab="Area(sqrm)", main="Count of Area(sqrm)")
+print(names(raw_stats))
 ```
 ```{r}
-hist(Bedrooms, xlab="Bedrooms", main="Count of Bedrooms")
-```
-```{r}
-hist(Bathrooms, xlab="Bathrooms",main="Count of Bathrooms")
-```
-```{r}
-hist(CarParks, xlab="Car Parks", main="Count of Car Parks")
-```
-```{r}
-hist(PropertyType, xlab="Property Type", main="Count of Property Types")
-```
-```{r}
-
-```
-```{r}
-
+for (val in 1:ncol(raw_stats)) {
+  colName <- names(raw_stats)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs"), colName)) {
+    # Skip these fields
+    next
+  }
+  
+  title <- paste("Count of ", colName)
+  hist(as.matrix(raw_stats[val]), xlab=colName, main=title)
+}
 ```
 
 
