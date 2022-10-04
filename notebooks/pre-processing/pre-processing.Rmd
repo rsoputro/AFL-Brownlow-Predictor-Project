@@ -11,16 +11,9 @@ This R Notebook is responsible for pre processing the AFL stats so that they can
 
 
 ##### Import Packages and source code
-These are the necesery packages and code needed to run the following code samples.
+These are the necessary packages and code needed to run the following code samples.
 ```{r}
-source("../../utilities/DBDA2E-utilities.R") 
-source("../../utilities/MoreUtilities.R")
-library(ggplot2)
-library(ggpubr)
-library(ks)
-library(rjags)
-library(runjags)
-library(benchmarkme)
+library(flipAPI)
 ```
 
 
@@ -94,6 +87,32 @@ for (row in 1:nrow(raw_stats)) {
 raw_stats
 ```
 
+Attempt 2
+```{r}
+second = function(x) {
+            if (length(x) == 1)
+                return(x)
+            return(sort(x, decreasing = TRUE)[2])}
+
+agg = aggregate(raw_stats,
+                by = list(raw_stats$playerId, raw_stats$round),
+                FUN = second)
+agg
+
+agg <- aggregate(Kicks ~ round + playerId, data=raw_stats, FUN="mean")
+agg["Bounces"] <- aggregate(Bounces ~ round + playerId, data=raw_stats, FUN="mean")[3]
+
+agg
+```
+Behinds, Bounces, Brownlow.Votes, Clangers, Clearances, Contested.Marks, Contested.Possessions,
+    displayName, Disposals, Frees, Frees.Against, gameId, gameNumber, Goal.Assists, Goals, Handballs,
+    Hit.Outs, Inside.50s, Kicks, Marks, Marks.Inside.50, One.Percenters, playerId, Rebounds, round, Subs,
+    Tackles, team, Uncontested.Possessions, X..Played, year
+    
+```{r}
+attach(raw_stats)
+df[, list(mean()), by=list(playerId,round)] 
+```
 
 
 
