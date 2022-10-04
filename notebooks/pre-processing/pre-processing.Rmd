@@ -118,6 +118,9 @@ df[, list(mean()), by=list(playerId,round)]
 
 
 
+Try this
+
+https://stackoverflow.com/questions/14640668/transforming-data-frame-in-r
 
 
 
