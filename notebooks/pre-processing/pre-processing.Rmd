@@ -54,6 +54,7 @@ These are the histograms of each stat field for all games over 10 years.
 ```{r}
 print(names(raw_stats))
 ```
+### Analysis of the data
 ```{r}
 for (val in 1:ncol(raw_stats)) {
   colName <- names(raw_stats)[val]
@@ -112,3 +113,78 @@ scatterplot(SalePrice.100K. ~ CarParks,     data=price_data, xlab="Car Parks",  
 # scatterplot(SalePrice.100K. ~ PropertyType, data=price_data, xlab="Property Type", ylab="Sale Price (100K)", main="Sale Price(100K) vs Property Type")
 
 ```
+
+```{r}
+# Sort by playerid first, then by round, so players are grouped together first, then their rounds they played over the years they played for that round.
+attach(raw_stats)
+sorted_raw_stats = raw_stats[order(playerId, round),]
+sorted_raw_stats
+```
+Create the list of round names
+```{r}
+rounds <- c()
+for (num in 1:21) {
+  rounds <- c(rounds, paste("R", num, sep=""))
+}
+rounds
+```
+
+# Richard's attempt
+```{r}
+```
+
+# Lukes current attempt at aggregating each players stats for each round from every year
+```{r}
+# Get the row indices of the playerid
+i <- 0
+all_indices_ranges <- c()
+
+current_indicies
+
+# Initial id is id of the first row.
+currentId <- sorted_raw_stats$playerId[1]
+for (row in 1:nrow(raw_stats)) {
+    id <- raw_stats[row, "playerId"]
+    
+    # If new player or end of the list, collect the data and add row to new table (dataframe).
+    if (currentId != id) {
+      # Aggregate the row ???
+      
+      
+      # Add row to dataframe representing that player aggregated ??
+      
+      currentId <- id
+      current_df = c()
+    }
+    
+    # For every field aggregate the stats
+    for (col_num in 1:ncol(raw_stats)) {
+      
+      # For each round aggregate the field statistics.
+      for(round in rounds) {
+        
+      }
+      
+    }
+    
+}
+ 
+# For each field
+
+# Average over the years
+
+raw_stats
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
