@@ -11,7 +11,7 @@
 
 
 
-<title>AFL Browne-Low Raw Stats, Analytics, and Pre Processing</title>
+<title>Pre-processed Exploratory Data Analysis</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1762,8 +1762,8 @@ pre code {
 
 
 
-<h1 class="title toc-ignore">AFL Browne-Low Raw Stats, Analytics, and
-Pre Processing</h1>
+<h1 class="title toc-ignore">Pre-processed Exploratory Data
+Analysis</h1>
 
 </div>
 
@@ -1772,11 +1772,13 @@ Pre Processing</h1>
 <p>This project was conducted by Thomas Johnstone, Richard, and Luke
 Mason, with supervision from RMIT Lecturer Dr Haydar Demirhan Bayesian
 Statistics 2022.</p>
-<p>This R Notebook is responsible for pre processing the AFL stats so
-that they can be consumed by the JAGS model.</p>
+<p>This notebook pre pre-processes the data into the expected format
+from the previous data analysis’ insights, that all players need to have
+their stats aggregated by mean for all the rounds they have played for
+every year for every field.</p>
 <div id="import-packages-and-source-code" class="section level5">
 <h5>Import Packages and source code</h5>
-<p>These are the necesery packages and code needed to run the following
+<p>These are the necessary packages and code needed to run the following
 code samples.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
@@ -1797,93 +1799,13 @@ library(benchmarkme)</code></pre>
 <h2>Load in the Raw Stats</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmF3X3N0YXRzID0gcmVhZC5jc3YoXCIuLi8uLi9kYXRhL3Jhd19zdGF0cy5jc3ZcIilcbmBgYCJ9 -->
-<pre class="r"><code>raw_stats = read.csv(&quot;../../data/raw_stats.csv&quot;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmF3X3N0YXRzID0gcmVhZC5jc3YoXCIuLi8uLi9kYXRhL3ByZV9wcm9jZXNzZWRfc3RhdHMuY3N2XCIpXG5gYGAifQ== -->
+<pre class="r"><code>raw_stats = read.csv(&quot;../../data/pre_processed_stats.csv&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBTb3J0IGJ5IHBsYXllcmlkIGZpcnN0LCB0aGVuIGJ5IHJvdW5kLCBzbyBwbGF5ZXJzIGFyZSBncm91cGVkIHRvZ2V0aGVyIGZpcnN0LCB0aGVuIHRoZWlyIHJvdW5kcyB0aGV5IHBsYXllZCBvdmVyIHRoZSB5ZWFycyB0aGV5IHBsYXllZCBmb3IgdGhhdCByb3VuZC5cbmF0dGFjaChyYXdfc3RhdHMpXG5zb3J0ZWRfcmF3X3N0YXRzID0gcmF3X3N0YXRzW29yZGVyKHBsYXllcklkLCByb3VuZCksXVxuc29ydGVkX3Jhd19zdGF0c1xuYGBgIn0= -->
-<pre class="r"><code># Sort by playerid first, then by round, so players are grouped together first, then their rounds they played over the years they played for that round.
-attach(raw_stats)
-sorted_raw_stats = raw_stats[order(playerId, round),]
-sorted_raw_stats</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>Create the list of round names</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucm91bmRzIDwtIGMoKVxuZm9yIChudW0gaW4gMToyMSkge1xuICByb3VuZHMgPC0gYyhyb3VuZHMsIHBhc3RlKFwiUlwiLCBudW0sIHNlcD1cIlwiKSlcbn1cbnJvdW5kc1xuYGBgIn0= -->
-<pre class="r"><code>rounds &lt;- c()
-for (num in 1:21) {
-  rounds &lt;- c(rounds, paste(&quot;R&quot;, num, sep=&quot;&quot;))
-}
-rounds</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="richards-attempt" class="section level1">
-<h1>Richard’s attempt</h1>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="lukes-current-attempt-at-aggregating-each-players-stats-for-each-round-from-every-year" class="section level1">
-<h1>Lukes current attempt at aggregating each players stats for each
-round from every year</h1>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBHZXQgdGhlIHJvdyBpbmRpY2VzIG9mIHRoZSBwbGF5ZXJpZFxuaSA8LSAwXG5hbGxfaW5kaWNlc19yYW5nZXMgPC0gYygpXG5cbmN1cnJlbnRfaW5kaWNpZXNcblxuIyBJbml0aWFsIGlkIGlzIGlkIG9mIHRoZSBmaXJzdCByb3cuXG5jdXJyZW50SWQgPC0gc29ydGVkX3Jhd19zdGF0cyRwbGF5ZXJJZFsxXVxuZm9yIChyb3cgaW4gMTpucm93KHJhd19zdGF0cykpIHtcbiAgICBpZCA8LSByYXdfc3RhdHNbcm93LCBcInBsYXllcklkXCJdXG4gICAgXG4gICAgIyBJZiBuZXcgcGxheWVyIG9yIGVuZCBvZiB0aGUgbGlzdCwgY29sbGVjdCB0aGUgZGF0YSBhbmQgYWRkIHJvdyB0byBuZXcgdGFibGUgKGRhdGFmcmFtZSkuXG4gICAgaWYgKGN1cnJlbnRJZCAhPSBpZCkge1xuICAgICAgIyBBZ2dyZWdhdGUgdGhlIHJvdyA/Pz9cbiAgICAgIFxuICAgICAgXG4gICAgICAjIEFkZCByb3cgdG8gZGF0YWZyYW1lIHJlcHJlc2VudGluZyB0aGF0IHBsYXllciBhZ2dyZWdhdGVkID8/XG4gICAgICBcbiAgICAgIGN1cnJlbnRJZCA8LSBpZFxuICAgICAgY3VycmVudF9kZiA9IGMoKVxuICAgIH1cbiAgICBcbiAgICAjIEZvciBldmVyeSBmaWVsZCBhZ2dyZWdhdGUgdGhlIHN0YXRzXG4gICAgZm9yIChjb2xfbnVtIGluIDE6bmNvbChyYXdfc3RhdHMpKSB7XG4gICAgICBcbiAgICAgICMgRm9yIGVhY2ggcm91bmQgYWdncmVnYXRlIHRoZSBmaWVsZCBzdGF0aXN0aWNzLlxuICAgICAgZm9yKHJvdW5kIGluIHJvdW5kcykge1xuICAgICAgICBcbiAgICAgIH1cbiAgICAgIFxuICAgIH1cbiAgICBcbn1cbiBcbiMgRm9yIGVhY2ggZmllbGRcblxuIyBBdmVyYWdlIG92ZXIgdGhlIHllYXJzXG5cbnJhd19zdGF0c1xuYGBgIn0= -->
-<pre class="r"><code># Get the row indices of the playerid
-i &lt;- 0
-all_indices_ranges &lt;- c()
-
-current_indicies
-
-# Initial id is id of the first row.
-currentId &lt;- sorted_raw_stats$playerId[1]
-for (row in 1:nrow(raw_stats)) {
-    id &lt;- raw_stats[row, &quot;playerId&quot;]
-    
-    # If new player or end of the list, collect the data and add row to new table (dataframe).
-    if (currentId != id) {
-      # Aggregate the row ???
-      
-      
-      # Add row to dataframe representing that player aggregated ??
-      
-      currentId &lt;- id
-      current_df = c()
-    }
-    
-    # For every field aggregate the stats
-    for (col_num in 1:ncol(raw_stats)) {
-      
-      # For each round aggregate the field statistics.
-      for(round in rounds) {
-        
-      }
-      
-    }
-    
-}
- 
-# For each field
-
-# Average over the years
-
-raw_stats</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkFGTCBCcm93bmUtTG93IFJhdyBTdGF0cywgQW5hbHl0aWNzLCBhbmQgUHJlIFByb2Nlc3NpbmciDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KVGhpcyBwcm9qZWN0IHdhcyBjb25kdWN0ZWQgYnkgVGhvbWFzIEpvaG5zdG9uZSwgUmljaGFyZCwgYW5kIEx1a2UgTWFzb24sIHdpdGggc3VwZXJ2aXNpb24gZnJvbSBSTUlUIExlY3R1cmVyIERyIEhheWRhciBEZW1pcmhhbiBCYXllc2lhbiBTdGF0aXN0aWNzIDIwMjIuDQoNCg0KVGhpcyBSIE5vdGVib29rIGlzIHJlc3BvbnNpYmxlIGZvciBwcmUgcHJvY2Vzc2luZyB0aGUgQUZMIHN0YXRzIHNvIHRoYXQgdGhleSBjYW4gYmUgY29uc3VtZWQgYnkgdGhlIEpBR1MgbW9kZWwuDQoNCg0KDQoNCiMjIyMjIEltcG9ydCBQYWNrYWdlcyBhbmQgc291cmNlIGNvZGUNClRoZXNlIGFyZSB0aGUgbmVjZXNlcnkgcGFja2FnZXMgYW5kIGNvZGUgbmVlZGVkIHRvIHJ1biB0aGUgZm9sbG93aW5nIGNvZGUgc2FtcGxlcy4NCmBgYHtyfQ0Kc291cmNlKCIuLi8uLi91dGlsaXRpZXMvREJEQTJFLXV0aWxpdGllcy5SIikgDQpzb3VyY2UoIi4uLy4uL3V0aWxpdGllcy9Nb3JlVXRpbGl0aWVzLlIiKQ0KbGlicmFyeShnZ3Bsb3QyKQ0KbGlicmFyeShnZ3B1YnIpDQpsaWJyYXJ5KGtzKQ0KbGlicmFyeShyamFncykNCmxpYnJhcnkocnVuamFncykNCmxpYnJhcnkoYmVuY2htYXJrbWUpDQpgYGANCg0KDQojIyBMb2FkIGluIHRoZSBSYXcgU3RhdHMNCmBgYHtyfQ0KcmF3X3N0YXRzID0gcmVhZC5jc3YoIi4uLy4uL2RhdGEvcmF3X3N0YXRzLmNzdiIpDQpgYGANCg0KDQoNCg0KYGBge3J9DQojIFNvcnQgYnkgcGxheWVyaWQgZmlyc3QsIHRoZW4gYnkgcm91bmQsIHNvIHBsYXllcnMgYXJlIGdyb3VwZWQgdG9nZXRoZXIgZmlyc3QsIHRoZW4gdGhlaXIgcm91bmRzIHRoZXkgcGxheWVkIG92ZXIgdGhlIHllYXJzIHRoZXkgcGxheWVkIGZvciB0aGF0IHJvdW5kLg0KYXR0YWNoKHJhd19zdGF0cykNCnNvcnRlZF9yYXdfc3RhdHMgPSByYXdfc3RhdHNbb3JkZXIocGxheWVySWQsIHJvdW5kKSxdDQpzb3J0ZWRfcmF3X3N0YXRzDQpgYGANCkNyZWF0ZSB0aGUgbGlzdCBvZiByb3VuZCBuYW1lcw0KYGBge3J9DQpyb3VuZHMgPC0gYygpDQpmb3IgKG51bSBpbiAxOjIxKSB7DQogIHJvdW5kcyA8LSBjKHJvdW5kcywgcGFzdGUoIlIiLCBudW0sIHNlcD0iIikpDQp9DQpyb3VuZHMNCmBgYA0KDQojIFJpY2hhcmQncyBhdHRlbXB0DQpgYGB7cn0NCmBgYA0KDQojIEx1a2VzIGN1cnJlbnQgYXR0ZW1wdCBhdCBhZ2dyZWdhdGluZyBlYWNoIHBsYXllcnMgc3RhdHMgZm9yIGVhY2ggcm91bmQgZnJvbSBldmVyeSB5ZWFyDQpgYGB7cn0NCiMgR2V0IHRoZSByb3cgaW5kaWNlcyBvZiB0aGUgcGxheWVyaWQNCmkgPC0gMA0KYWxsX2luZGljZXNfcmFuZ2VzIDwtIGMoKQ0KDQpjdXJyZW50X2luZGljaWVzDQoNCiMgSW5pdGlhbCBpZCBpcyBpZCBvZiB0aGUgZmlyc3Qgcm93Lg0KY3VycmVudElkIDwtIHNvcnRlZF9yYXdfc3RhdHMkcGxheWVySWRbMV0NCmZvciAocm93IGluIDE6bnJvdyhyYXdfc3RhdHMpKSB7DQogICAgaWQgPC0gcmF3X3N0YXRzW3JvdywgInBsYXllcklkIl0NCiAgICANCiAgICAjIElmIG5ldyBwbGF5ZXIgb3IgZW5kIG9mIHRoZSBsaXN0LCBjb2xsZWN0IHRoZSBkYXRhIGFuZCBhZGQgcm93IHRvIG5ldyB0YWJsZSAoZGF0YWZyYW1lKS4NCiAgICBpZiAoY3VycmVudElkICE9IGlkKSB7DQogICAgICAjIEFnZ3JlZ2F0ZSB0aGUgcm93ID8/Pw0KICAgICAgDQogICAgICANCiAgICAgICMgQWRkIHJvdyB0byBkYXRhZnJhbWUgcmVwcmVzZW50aW5nIHRoYXQgcGxheWVyIGFnZ3JlZ2F0ZWQgPz8NCiAgICAgIA0KICAgICAgY3VycmVudElkIDwtIGlkDQogICAgICBjdXJyZW50X2RmID0gYygpDQogICAgfQ0KICAgIA0KICAgICMgRm9yIGV2ZXJ5IGZpZWxkIGFnZ3JlZ2F0ZSB0aGUgc3RhdHMNCiAgICBmb3IgKGNvbF9udW0gaW4gMTpuY29sKHJhd19zdGF0cykpIHsNCiAgICAgIA0KICAgICAgIyBGb3IgZWFjaCByb3VuZCBhZ2dyZWdhdGUgdGhlIGZpZWxkIHN0YXRpc3RpY3MuDQogICAgICBmb3Iocm91bmQgaW4gcm91bmRzKSB7DQogICAgICAgIA0KICAgICAgfQ0KICAgICAgDQogICAgfQ0KICAgIA0KfQ0KIA0KIyBGb3IgZWFjaCBmaWVsZA0KDQojIEF2ZXJhZ2Ugb3ZlciB0aGUgeWVhcnMNCg0KcmF3X3N0YXRzDQpgYGANCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlByZS1wcm9jZXNzZWQgRXhwbG9yYXRvcnkgRGF0YSBBbmFseXNpcyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQpUaGlzIHByb2plY3Qgd2FzIGNvbmR1Y3RlZCBieSBUaG9tYXMgSm9obnN0b25lLCBSaWNoYXJkLCBhbmQgTHVrZSBNYXNvbiwgd2l0aCBzdXBlcnZpc2lvbiBmcm9tIFJNSVQgTGVjdHVyZXIgRHIgSGF5ZGFyIERlbWlyaGFuIEJheWVzaWFuIFN0YXRpc3RpY3MgMjAyMi4NCg0KVGhpcyBub3RlYm9vayBwcmUgcHJlLXByb2Nlc3NlcyB0aGUgZGF0YSBpbnRvIHRoZSBleHBlY3RlZCBmb3JtYXQgZnJvbSB0aGUgcHJldmlvdXMgZGF0YSBhbmFseXNpcycgaW5zaWdodHMsIHRoYXQgYWxsIHBsYXllcnMgbmVlZCB0byBoYXZlIHRoZWlyIHN0YXRzIGFnZ3JlZ2F0ZWQgYnkgbWVhbiBmb3IgYWxsIHRoZSByb3VuZHMgdGhleSBoYXZlIHBsYXllZCBmb3IgZXZlcnkgeWVhciBmb3IgZXZlcnkgZmllbGQuDQoNCg0KIyMjIyMgSW1wb3J0IFBhY2thZ2VzIGFuZCBzb3VyY2UgY29kZQ0KVGhlc2UgYXJlIHRoZSBuZWNlc3NhcnkgcGFja2FnZXMgYW5kIGNvZGUgbmVlZGVkIHRvIHJ1biB0aGUgZm9sbG93aW5nIGNvZGUgc2FtcGxlcy4NCmBgYHtyfQ0Kc291cmNlKCIuLi8uLi91dGlsaXRpZXMvREJEQTJFLXV0aWxpdGllcy5SIikgDQpzb3VyY2UoIi4uLy4uL3V0aWxpdGllcy9Nb3JlVXRpbGl0aWVzLlIiKQ0KbGlicmFyeShnZ3Bsb3QyKQ0KbGlicmFyeShnZ3B1YnIpDQpsaWJyYXJ5KGtzKQ0KbGlicmFyeShyamFncykNCmxpYnJhcnkocnVuamFncykNCmxpYnJhcnkoYmVuY2htYXJrbWUpDQpgYGANCg0KDQojIyBMb2FkIGluIHRoZSBSYXcgU3RhdHMNCmBgYHtyfQ0KcmF3X3N0YXRzID0gcmVhZC5jc3YoIi4uLy4uL2RhdGEvcHJlX3Byb2Nlc3NlZF9zdGF0cy5jc3YiKQ0KYGBg</div>
 
 
 
@@ -1930,7 +1852,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("pre-processing.Rmd");
+  window.initializeSourceEmbed("pre_processed_data_analysis.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>

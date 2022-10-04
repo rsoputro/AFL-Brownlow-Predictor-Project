@@ -2,10 +2,12 @@
 title: "AFL Browne-Low Raw Stats, Analytics, and Pre Processing"
 output: html_notebook
 ---
+This project was conducted by Thomas Johnstone, Richard, and Luke Mason, with supervision from RMIT Lecturer Dr Haydar Demirhan Bayesian Statistics 2022.
+
 
 This R Notebook is responsible for pre processing the AFL stats so that they can be consumed by the JAGS model.
 
-This project was conducted by Thomas Johnstone, Richard, and Luke Mason, with supervision from RMIT Lecturer Dr Haydar Demirhan Bayesian Statistics 2022.
+
 
 
 ##### Import Packages and source code
@@ -28,89 +30,7 @@ raw_stats = read.csv("../../data/raw_stats.csv")
 ```
 
 
-## Exploratory Data Analysis
 
-### Attach the data to memory
-Attaching the data to memory allows us to access the keys of the columns without mentioning the dataset, gives us short hand access to the fields.
-```{r}
-attach(raw_stats)
-```
-
-### Peek at the stats
-```{r}
-head(raw_stats)
-```
-
-### A Summary of the stats
-```{r}
-summary(raw_stats)
-```
-
-### Histograms of frequencies
-These are the histograms of each stat field for all games over 10 years.
-
-```{r}
-print(names(raw_stats))
-```
-### Analysis of the raw data
-```{r}
-for (val in 1:ncol(raw_stats)) {
-  colName <- names(raw_stats)[val]
-  
-  
-  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs"), colName)) {
-    # Skip these fields
-    next
-  }
-  
-  title <- paste("Count of ", colName)
-  hist(as.matrix(raw_stats[val]), xlab=colName, main=title)
-}
-```
-
-
-```{r}
-
-
-# table(price_data)
-# Table of counts per unique value.
-# table(SalePrice.100K.)
-# table(Area)
-table(Bedrooms)
-table(Bathrooms)
-table(CarParks)
-table(PropertyType)
-
-library(gridExtra)
-library(grid)
-table(price_data$PropertyType)
-tb <- table(price_data$PropertyType)
-df <- data.frame("Houses"=c(tb)[1],"Units"=c(tb)[2]) 
-grid.table(df)
-
-# Density function.
-plot(kde(SalePrice.100K.), xlab="SalePrice(100K)", main="Density of Sale Pricings Per 100K")
-plot(kde(Area), xlab="Area(sqrm)", main="Density of Area(sqrm)")
-plot(kde(Bedrooms), xlab="Bedrooms", main="Density of Bedrooms")
-plot(kde(Bathrooms), xlab="Bathrooms",main="Density of Bathrooms")
-plot(kde(CarParks), xlab="Car Parks", main="Density of Car Parks")
-plot(kde(PropertyType), xlab="Property Type", main="Density of Property Type")
-
-# Scatterplot of each independant variable against the dependant variable.
-# plot(Area, SalePrice.100K., main="Sale Price(100K) vs Area(sqrm)", pch=5)
-# plot(Bedrooms, SalePrice.100K., main="Sale Pric(100K)e vs Bedrooms", pch=5)
-# plot(Bathrooms, SalePrice.100K., main="Sale Price(100K) vs Bathrooms", pch=5)
-# plot(CarParks, SalePrice.100K., main="Sale Price(100K) vs Car Parks", pch=5)
-# plot(PropertyType, SalePrice.100K., main="Sale Price(100K) vs Property Type", pch=5)
-
-library(car)
-scatterplot(SalePrice.100K. ~ Area,         data=price_data, xlab="Area",          ylab="Sale Price (100K)", main="Sale Price(100K) vs Area(sqrm)")
-scatterplot(SalePrice.100K. ~ Bedrooms,     data=price_data, xlab="Bedrooms",      ylab="Sale Price (100K)", main="Sale Price(100K)e vs Bedrooms")
-scatterplot(SalePrice.100K. ~ Bathrooms,    data=price_data, xlab="Bathrooms",     ylab="Sale Price (100K)", main="Sale Price(100K) vs Bathrooms")
-scatterplot(SalePrice.100K. ~ CarParks,     data=price_data, xlab="Car Parks",     ylab="Sale Price (100K)", main="Sale Price(100K) vs Car Parks")
-# scatterplot(SalePrice.100K. ~ PropertyType, data=price_data, xlab="Property Type", ylab="Sale Price (100K)", main="Sale Price(100K) vs Property Type")
-
-```
 
 ```{r}
 # Sort by playerid first, then by round, so players are grouped together first, then their rounds they played over the years they played for that round.

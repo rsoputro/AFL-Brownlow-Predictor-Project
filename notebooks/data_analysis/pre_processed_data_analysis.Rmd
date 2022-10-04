@@ -1,0 +1,27 @@
+---
+title: "Pre-processed Exploratory Data Analysis"
+output: html_notebook
+---
+This project was conducted by Thomas Johnstone, Richard, and Luke Mason, with supervision from RMIT Lecturer Dr Haydar Demirhan Bayesian Statistics 2022.
+
+This notebook pre pre-processes the data into the expected format from the previous data analysis' insights, that all players need to have their stats aggregated by mean for all the rounds they have played for every year for every field.
+
+
+##### Import Packages and source code
+These are the necessary packages and code needed to run the following code samples.
+```{r}
+source("../../utilities/DBDA2E-utilities.R") 
+source("../../utilities/MoreUtilities.R")
+library(ggplot2)
+library(ggpubr)
+library(ks)
+library(rjags)
+library(runjags)
+library(benchmarkme)
+```
+
+
+## Load in the Raw Stats
+```{r}
+raw_stats = read.csv("../../data/pre_processed_stats.csv")
+```
