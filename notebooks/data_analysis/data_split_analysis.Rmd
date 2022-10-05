@@ -1,0 +1,13 @@
+---
+title: "Data Split Data Analysis"
+output: html_notebook
+---
+
+This notebook analyzes the data split prior to preprocessing the training set.
+
+
+## Load in the Raw Stats
+```{r}
+raw_stats = read.csv("../../data/raw_set.csv")
+```
+

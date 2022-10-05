@@ -7,124 +7,84 @@ This project was conducted by Thomas Johnstone, Richard, and Luke Mason, with su
 
 This R Notebook is responsible for pre processing the AFL stats so that they can be consumed by the JAGS model.
 
-
-
-
-##### Import Packages and source code
-These are the necessary packages and code needed to run the following code samples.
+## Load in the training set
 ```{r}
-library(flipAPI)
+raw_stats = read.csv("../../data/train_set.csv")
 ```
 
 
-## Load in the Raw Stats
-```{r}
-raw_stats = read.csv("../../data/raw_stats.csv")
-```
-
-
-
-
-```{r}
-# Sort by playerid first, then by round, so players are grouped together first, then their rounds they played over the years they played for that round.
-attach(raw_stats)
-sorted_raw_stats = raw_stats[order(playerId, round),]
-sorted_raw_stats
-```
 Create the list of round names
 ```{r}
-rounds <- c()
+# Create initial list of valid round names.
+valid_round_names <- c()
+
+# Create 21 round names.
 for (num in 1:21) {
-  rounds <- c(rounds, paste("R", num, sep=""))
+  # Append round names to valid round name list
+  valid_round_names <- c(valid_round_names, paste("R", num, sep=""))
 }
-rounds
+
+# Display.
+valid_round_names
 ```
 
-# Richard's attempt
 ```{r}
-```
 
-# Lukes current attempt at aggregating each players stats for each round from every year
-```{r}
-# Get the row indices of the playerid
-i <- 0
-all_indices_ranges <- c()
+# Set of column names that are not numerical, or do not contribute to the calculation of brownlow points
+drops <- c("gameId","gameNumber", "Subs", "year", "team", "X..Played", "playerId", "displayName", "round")
 
-current_indicies
+# Drop these column names from the raw stats into filtered dataframe.
+filtered_df <- raw_stats[ , !(names(raw_stats) %in% drops)]
 
-# Initial id is id of the first row.
-currentId <- sorted_raw_stats$playerId[1]
-for (row in 1:nrow(raw_stats)) {
-    id <- raw_stats[row, "playerId"]
-    
-    # If new player or end of the list, collect the data and add row to new table (dataframe).
-    if (currentId != id) {
-      # Aggregate the row ???
-      
-      
-      # Add row to dataframe representing that player aggregated ??
-      
-      currentId <- id
-      current_df = c()
-    }
-    
-    # For every field aggregate the stats
-    for (col_num in 1:ncol(raw_stats)) {
-      
-      # For each round aggregate the field statistics.
-      for(round in rounds) {
-        
-      }
-      
-    }
-    
-}
- 
-# For each field
+# Aggregate all fields in the filtered data frame, but group them by the list of values in field columns:
+# - playerId; so that all games of the player are aggregated together by mean
+# - displayName; so that we can have the name of the player during data analysis
+# - round; so that the player's games are not aggregated into 1 row, but instead 1 row per round.
+agg = aggregate(filtered_df, by=list(raw_stats$playerId, raw_stats$displayName, raw_stats$round), FUN = mean)
 
-# Average over the years
+# Remove rows who's round is not in the list of valid round names
+# This is because the finals rounds exist after round 22 and there are no brownlow points assigned to players during these games, which makes these rows redundant.
+agg2 <- agg[ agg$Group.3 %in% valid_round_names, ]
 
-raw_stats
-```
+agg2
 
-Attempt 2
-```{r}
-second = function(x) {
-            if (length(x) == 1)
-                return(x)
-            return(sort(x, decreasing = TRUE)[2])}
+#agg <- aggregate(Kicks ~ round + playerId, data=raw_stats, FUN="mean")
+#agg["Bounces"] <- aggregate(Bounces ~ round + playerId, data=raw_stats, FUN="mean")[3]
 
-agg = aggregate(raw_stats,
-                by = list(raw_stats$playerId, raw_stats$round),
-                FUN = second)
-agg
-
-agg <- aggregate(Kicks ~ round + playerId, data=raw_stats, FUN="mean")
-agg["Bounces"] <- aggregate(Bounces ~ round + playerId, data=raw_stats, FUN="mean")[3]
-
-agg
+#agg
 ```
 Behinds, Bounces, Brownlow.Votes, Clangers, Clearances, Contested.Marks, Contested.Possessions,
-    displayName, Disposals, Frees, Frees.Against, gameId, gameNumber, Goal.Assists, Goals, Handballs,
-    Hit.Outs, Inside.50s, Kicks, Marks, Marks.Inside.50, One.Percenters, playerId, Rebounds, round, Subs,
-    Tackles, team, Uncontested.Possessions, X..Played, year
+    Disposals, Frees, Frees.Against, gameNumber, Goal.Assists, Goals, Handballs,
+    Hit.Outs, Inside.50s, Kicks, Marks, Marks.Inside.50, One.Percenters, Rebounds,
+    Tackles, Uncontested.Possessions, 
     
 ```{r}
-attach(raw_stats)
-df[, list(mean()), by=list(playerId,round)] 
+library(tidyr)
+
+stat_cols = c("Behinds", "Bounces", "Brownlow.Votes", "Clangers", "Clearances", "Contested.Marks", "Contested.Possessions",
+    "Disposals", "Frees", "Frees.Against", "Goal.Assists", "Goals", "Handballs",
+    "Hit.Outs", "Inside.50s", "Kicks", "Marks", "Marks.Inside.50", "One.Percenters", "Rebounds",
+    "Tackles", "Uncontested.Possessions")
+
+agg3 = pivot_wider(agg2[1:100,], id_cols = c("Group.1", "Group.2"), names_from = "Group.3", values_from = stat_cols)
+agg3
 ```
 
+```{r}
+agg3
+```
 
+```{r}
+agg3 = pivot_longer(agg2[1:100,], names_to="stat_name", values_to="value", cols=stat_cols)
+agg4 = pivot_wider(agg3, id_cols = c("Group.1", "Group.2"), names_from = "Group.3", values_from = stat_cols)
+agg4
+```
 
+```{r}
+library(reshape2)
 
-
-Try this
-
-https://stackoverflow.com/questions/14640668/transforming-data-frame-in-r
-
-
-
-
-
-
+agg3 <- cbind(ID=rownames(valid_round_names),  agg2)
+melt(agg3)
+#data.frame(rows = row.names(valid_round_names), stack(agg2))
+```
 
