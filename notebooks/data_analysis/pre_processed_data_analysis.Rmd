@@ -24,9 +24,12 @@ library(benchmarkme)
 ## Load in the Raw Stats
 ```{r}
 df = read.csv("../../data/train_preprocessed_stats_per_player.csv")
+dfr = read.csv("../../data/train_preprocessed_stats_per_round.csv")
 ```
 
 ## Exploratory Data Analysis
+
+# Per Player Data Analysis
 
 ### Peek at the stats
 ```{r}
@@ -73,5 +76,88 @@ for (val in 1:ncol(df)) {
   print(colName)
   title <- paste("Scatter plot of ", colName)
   plot(unlist(df[val]), xlab=colName, main=title)
+}
+```
+```{r}
+library(car)
+
+
+for (val in 1:ncol(df)) {
+  colName <- names(df)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs", "Brownlow.Votes"), colName)) {
+    # Skip these fields
+    next
+  }
+  title <- paste("Brownlow Votes vs ", colName)
+  scatterplot(unlist(df["Brownlow.Votes"]) ~ unlist(df[val]), data=df, xlab=colName, ylab="Brownlow Votes", main=title)
+}
+```
+# Per Round Data Analysis -----------------------------------------------------------------------------------------------------
+
+
+### Peek at the stats
+```{r}
+head(dfr)
+```
+
+### A Summary of the stats
+```{r}
+summary(dfr)
+```
+
+### Histograms of frequencies
+These are the histograms of each stat field for all games over 10 years.
+
+```{r}
+print(names(dfr))
+```
+### Frequency over all players
+```{r}
+for (val in 1:ncol(dfr)) {
+  colName <- names(dfr)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs"), colName)) {
+    # Skip these fields
+    next
+  }
+  
+  title <- paste("Count of ", colName)
+  hist(as.matrix(dfr[val]), xlab=colName, main=title)
+}
+```
+
+### Scatter Plots
+```{r}
+for (val in 1:ncol(dfr)) {
+  colName <- names(dfr)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs"), colName)) {
+    # Skip these fields
+    next
+  }
+  title <- paste("Scatter plot of ", colName)
+  plot(unlist(dfr[val]), xlab=colName, main=title)
+}
+```
+
+### Scatter plot v2
+```{r}
+library(car)
+
+
+for (val in 1:ncol(dfr)) {
+  colName <- names(dfr)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs", "Brownlow.Votes"), colName)) {
+    # Skip these fields
+    next
+  }
+  title <- paste("Brownlow Votes vs ", colName)
+  scatterplot(unlist(dfr["Brownlow.Votes"]) ~ unlist(dfr[val]), data=dfr, xlab=colName, ylab="Brownlow Votes", main=title)
 }
 ```

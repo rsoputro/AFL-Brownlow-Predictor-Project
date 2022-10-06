@@ -8,6 +8,44 @@ This notebook analyzes the data split prior to preprocessing the training set.
 
 ## Load in the Raw Stats
 ```{r}
-raw_stats = read.csv("../../data/raw_set.csv")
+train_set = read.csv("../../data/train_set.csv")
+test_set = read.csv("../../data/test_set.csv")
 ```
 
+```{r}
+
+# This function overlaps 2 histograms on top of each other with a bit of transparency.
+histCompare <- function(train, test, title, xlabel, print=FALSE){
+  c1 <- rgb(173,216,230,max = 255, alpha = 80, names = "lt.blue")
+  c2 <- rgb(255,192,203, max = 255, alpha = 80, names = "lt.pink")
+  train_set <- as.matrix(train)
+  test_set <- as.matrix(test)
+  b <- min(c(train_set,test_set)) # Set the minimum for the breakpoints
+  e <- max(c(train_set,test_set)) # Set the maximum for the breakpoints
+  ax <- pretty(b:e, n = 12) # Make a neat vector for the breakpoints
+  hgA <- hist(train_set, breaks = ax, plot = FALSE) # Save first histogram data
+  hgB <- hist(test_set, breaks = ax, plot = FALSE) # Save 2nd histogram data
+  plot(hgA, col = c1, main=title, xlab=xlabel) # Plot 1st histogram using a transparent color
+  plot(hgB, col = c2, add = TRUE) # Add 2nd histogram using different color
+  # axis(side=1,at=hgA$mids,labels=seq(b,e))
+  # axis(side=1,at=hgB$mids,labels=seq(b,e))
+  legend("topright", c("Train Set", "Test Set"), col=c(c1, c2), lwd=10)
+  if (print) {
+    print(table(train_set))
+    print(table(test_set))
+  }
+}
+
+
+for (val in 1:ncol(train_set)) {
+  colName <- names(train_set)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs", "Brownlow.Votes"), colName)) {
+    # Skip these fields
+    next
+  }
+  title <- paste(colName, "Train vs Test")
+  histCompare(unlist(train_set[val]), unlist(test_set[val]), title, colName, TRUE)
+}
+```

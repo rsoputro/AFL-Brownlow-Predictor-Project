@@ -87,14 +87,18 @@ for (val in 1:ncol(raw_stats)) {
 ```
 
 
-
+# Scatterplot of brownlow votes vs each stat type
 ```{r}
-
-library(car)
-scatterplot(SalePrice.100K. ~ Area,         data=price_data, xlab="Area",          ylab="Sale Price (100K)", main="Sale Price(100K) vs Area(sqrm)")
-scatterplot(SalePrice.100K. ~ Bedrooms,     data=price_data, xlab="Bedrooms",      ylab="Sale Price (100K)", main="Sale Price(100K)e vs Bedrooms")
-scatterplot(SalePrice.100K. ~ Bathrooms,    data=price_data, xlab="Bathrooms",     ylab="Sale Price (100K)", main="Sale Price(100K) vs Bathrooms")
-scatterplot(SalePrice.100K. ~ CarParks,     data=price_data, xlab="Car Parks",     ylab="Sale Price (100K)", main="Sale Price(100K) vs Car Parks")
-# scatterplot(SalePrice.100K. ~ PropertyType, data=price_data, xlab="Property Type", ylab="Sale Price (100K)", main="Sale Price(100K) vs Property Type")
+for (val in 1:ncol(raw_stats)) {
+  colName <- names(raw_stats)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs", "Brownlow.Votes"), colName)) {
+    # Skip these fields
+    next
+  }
+  title <- paste("Brownlow Votes vs ", colName)
+  plot(unlist(raw_stats["Brownlow.Votes"]) ~ unlist(raw_stats[val]), data=raw_stats, xlab=colName, ylab="Brownlow Votes", main=title)
+}
 
 ```

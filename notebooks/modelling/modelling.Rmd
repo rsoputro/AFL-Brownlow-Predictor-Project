@@ -5,9 +5,228 @@ output: html_notebook
 
 Read train and test sets from files.
 ```{r}
-train <- read.csv("../../data/train_set.csv")
+# Round training data contains brownlow (target label) values including 3.
+# Process the data so that it isn't so skewed
+train <- read.csv("../../data/train_preprocessed_stats_per_round.csv")
 test <- read.csv("../../data/test_set.csv")
 ```
+
+
+#============================== Create Data List =============================
+
+```{r}
+
+# summary(as.matrix(train[,2:6]))
+# print(as.matrix(train[,2:6]))
+
+y <- train$SalePrice.100K.
+x <- as.matrix(train[,2:6])
+xPred = as.matrix(test[,2:6])
+
+dataList = list(
+  x = x ,
+  y = y ,
+  xPred = xPred ,
+  rowCount = length(y),
+  colCount = ncol(x), 
+  predCount = nrow(xPred)
+)
+```
+
+#======================= Writing the Model to Text File =======================
+```{r}
+modelString = "
+# Standardize Continuous Independent Variables.
+data {
+  yMean <- mean(y)
+  yStd <- sd(y)
+  
+  xMean[1] <- mean(x[,1])
+  xMean[2] <- mean(x[,2])
+  xMean[3] <- mean(x[,3])
+  xMean[4] <- mean(x[,4])
+  
+  xStd[1] <- sd(x[,1])
+  xStd[2] <- sd(x[,2])
+  xStd[3] <- sd(x[,3])
+  xStd[4] <- sd(x[,4])
+  for (i in 1:rowCount) {
+    # X
+    zx[i,1] <- (x[i,1] - xMean[1]) / xStd[1]
+    zx[i,2] <- (x[i,2] - xMean[2]) / xStd[2]
+    zx[i,3] <- (x[i,3] - xMean[3]) / xStd[3]
+    zx[i,4] <- (x[i,4] - xMean[4]) / xStd[4]
+    zx[i,5] <- x[i,5] # 5th variable is not continuous.
+     
+    # Y
+    zy[i] <- (y[i] - yMean) / yStd
+  }
+ 
+  # Specify the priors for original beta parameters
+  # Prior locations to reflect the expert information
+  # Regression coeffient in LR indicates how much 1 unit of change of the 
+  # predictor increases the log odds of outcome 1.
+  # Set to overall mean a priori based on the interpretation of constant term in regression
+  
+  mu0 <- yMean 
+  mu[1] <- 90/100000  # Area         -   90 AUD per sqr meter       discrete
+  mu[2] <- 1          # Bedrooms     -   100,000 AUD per bedroom    ordinal variable
+  mu[3] <- 0          # Bathrooms    -   0 no expert knowledge      ordinal variable
+  mu[4] <- 1.2        # CarParks     -   120,000 AUD per car park   ordinal variable
+  mu[5] <- -1.5       # PropertyType -  -150,000 AUD for 1, 0 for 0 categorical
+  # Prior variances to reflect the expert information
+  Var0 <- 1 # Set simply to 1
+  Var[1] <- 0.0002  # Area         - Very Strong
+  Var[2] <- 0.01   # Bedrooms     - Weak
+  Var[3] <- 1000  # Bathrooms    - None
+  Var[4] <- 0.001   # CarParks     - Strong
+  Var[5] <- 0.0002  # PropertyType - Very Strong
+  
+  # Compute corresponding prior means and variances for the standardised parameters
+  muZ[1:4] <-  mu[1:4] * xStd[1:4] / yStd
+  muZ[5] <- mu[5]
+  muZ0 <- (mu0 + mu[5] + sum( mu[1:4] * xMean[1:4] / xStd[1:4] ) * yStd - yMean) / yStd
+  VarZ[1:4] <- Var[1:4] * ( xStd[1:4]/ yStd )^2
+  VarZ[5] <- Var[5]
+  VarZ0 <- Var0 / (yStd^2)
+}
+# Model
+model {
+  for (i in 1:rowCount) {
+    # Normal Likelihood
+    y[i] ~ dnorm(beta0 + 
+          beta[1] * x[i,1] +
+          beta[2] * x[i,2] +
+          beta[3] * x[i,3] +
+          beta[4] * x[i,4] +
+          beta[5] * x[i,5], precision)
+  }
+  precision ~ dexp(1/30.0) # High variance as it is unknown
+  
+  # Priors vague on standardized scale:
+  zbeta0 ~ dnorm(muZ0, 1/VarZ0)  
+  zbeta[1] ~ dnorm(muZ[1], 1/VarZ[1])
+  zbeta[2] ~ dnorm(muZ[2], 1/VarZ[2])
+  zbeta[3] ~ dnorm(muZ[3], 1/VarZ[3])
+  zbeta[4] ~ dnorm(muZ[4], 1/VarZ[4])
+  zbeta[5] ~ dnorm(muZ[5], 1/VarZ[5])
+  # Transform to original scale:
+  beta0 <- zbeta0 - (sum(zbeta[1:4] * xMean[1:4] / xStd[1:4]) + zbeta[5])
+  beta[1] <- zbeta[1] / xStd[1]
+  beta[2] <- zbeta[2] / xStd[2]
+  beta[3] <- zbeta[3] / xStd[3]
+  beta[4] <- zbeta[4] / xStd[4]
+  beta[5] <- zbeta[5]
+  
+  
+  # Compute predictions at every step of the MCMC
+  for (k in 1:predCount) {
+    pred[k] <- 
+        beta0 + 
+        beta[1] * xPred[k,1] + 
+        beta[2] * xPred[k,2] + 
+        beta[3] * xPred[k,3] + 
+        beta[4] * xPred[k,4] +
+        beta[5] * xPred[k,5]
+  }
+}"
+
+writeLines(modelString, con="TEMPmodel.txt")
+```
+
+# ================ Linear Regression =====================
+```{r}
+parameters = c("zbeta0","beta0")
+for ( i in 1:5){
+  parameters = c(parameters, paste0("zbeta[",i,"]"), paste0("beta[",i,"]"))
+}
+for ( i in 1:nrow(xPred)){
+  parameters = c(parameters, paste0("pred[",i,"]"))
+}
+
+adaptSteps = 1000
+burnInSteps = 2000
+nChains = 2
+thinSteps = 6
+numSavedSteps = 4000
+nIter = ceiling( ( numSavedSteps * thinSteps ) / nChains )
+
+startTime = proc.time()
+# sink("debug2.txt")
+runJagsOut <- run.jags( method="parallel" ,
+                        model="TEMPmodel.txt" ,
+                        monitor=parameters  ,
+                        data=dataList ,
+                        n.chains=nChains ,
+                        adapt=adaptSteps ,
+                        burnin=burnInSteps ,
+                        sample=numSavedSteps ,
+                        thin=thinSteps , summarise=FALSE , plots=FALSE )
+stopTime = proc.time()
+duration = stopTime - startTime
+show(duration)
+codaSamples = as.mcmc.list( runJagsOut )
+# sink()
+```
+
+# ============= Display Results ============
+```{r}
+diagMCMC( codaSamples , parName="beta0" )
+for ( i in 1:5){
+  diagMCMC( codaSamples , parName=paste0("beta[",i,"]") )
+}
+
+graphics.off()
+
+compVal <- data.frame("beta0" = 1, "beta[1]" = 90/100000, "beta[2]" = 1, "beta[3]" = 0, "beta[4]" =  1.2, "beta[5]" =  -1.5, check.names=FALSE)
+summaryInfo <- smryMCMC( codaSamples = codaSamples , compVal = compVal )
+
+plotMCMC( codaSamples = codaSamples , data = price_data, xName=c("Area","Bedrooms","Bathrooms","CarParks", "PropertyType") , 
+          yName="SalePrice.100K.", compVal = compVal, preds = TRUE)
+```
+
+# ============ Predictive check ============
+```{r}
+modes = summaryInfo[,"Mode"]
+# 14 is the number of rows skipping beta and zbeta and heading rows = (6 + 6 + 2)
+guesses = modes[14:length(modes) - 1]
+real = c(test$SalePrice.100K.)
+n = length(real)
+# MAE
+sum(abs(guesses - real))/n
+# MSE
+sum((real - guesses)^2)
+# RMSE
+sqrt(mse/n)
+```
+# TODO REMOVE THIS EXAMPLE
+
+#=============================RUN n EXAMPLE================================
+# Var0 <- 1 # Set simply to 1
+# Var[1] <- 0.01  # Area         - Very Strong
+# Var[2] <- 1   # Bedrooms     - Weak
+# Var[3] <- 1000  # Bathrooms    - None
+# Var[4] <- 0.1   # CarParks     - Strong
+# Var[5] <- 0.01  # PropertyType - Very Strong
+#
+# adaptSteps = 25
+# burnInSteps = 50
+# nChains = 2
+# thinSteps = 23
+# numSavedSteps = 100
+# 
+# user  system elapsed 
+# 1.18    0.53   41.95
+
+# MAE = 3.350982
+# MSE = 30768.42
+# RMSE = 5.549705
+# 
+# save( codaSamples , file=paste("A2Run1","Mcmc.Rdata",sep="") )
+# save.image(file='A2Run1.RData')
+# load('A2Run1.RData')
+
+
 
 # Modelling
 
