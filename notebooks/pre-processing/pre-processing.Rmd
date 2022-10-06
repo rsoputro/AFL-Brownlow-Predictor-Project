@@ -56,7 +56,7 @@ stat_cols = c("Behinds", "Bounces", "Brownlow.Votes", "Clangers", "Clearances", 
     "Hit.Outs", "Inside.50s", "Kicks", "Marks", "Marks.Inside.50", "One.Percenters", "Rebounds",
     "Tackles", "Uncontested.Possessions")
 
-df2 = pivot_longer(df1, names_to="stat", values_to="value", cols=stat_cols)
+df2 = pivot_longer(df1, names_to="stat", values_to="value", cols=all_of(stat_cols))
 df3 = pivot_wider(df2, id_cols = c("Group.1", "Group.2", "stat"), names_from = "Group.3")
 
 # Order the columns
@@ -74,22 +74,35 @@ df4
 
 
 ```{r}
-df <- df1
 # Rename columns
-names(df)[names(df) == 'Group.1'] <- 'playerId'
-names(df)[names(df) == 'Group.2'] <- 'displayName'
-names(df)[names(df) == 'Group.3'] <- 'round'
+names(df1)[names(df1) == 'Group.1'] <- 'playerId'
+names(df1)[names(df1) == 'Group.2'] <- 'displayName'
+names(df1)[names(df1) == 'Group.3'] <- 'round'
 
-attach(df)
-stat_df <- df[order(playerId, displayName, round),]
+stat_df <- df1[order(df1$playerId, df1$displayName, df1$round),]
 stat_df
 ```
+```{r}
+filtered_df2 <- filtered_df[ , !(names(filtered_df) %in% c("rounds"))]
+# Aggregate all fields in the filtered data frame, but group them by the list of values in field columns:
+# - playerId; so that all games of the player are aggregated together by mean
+# - displayName; so that we can have the name of the player during data analysis
+# - round; so that the player's games are not aggregated into 1 row, but instead 1 row per round.
+per_player_agg = aggregate(filtered_df, by=list(raw_stats$playerId, raw_stats$displayName), FUN = mean)
 
+# Rename columns
+names(per_player_agg)[names(per_player_agg) == 'Group.1'] <- 'playerId'
+names(per_player_agg)[names(per_player_agg) == 'Group.2'] <- 'displayName'
+
+ppa <- per_player_agg[order(per_player_agg$playerId, per_player_agg$displayName),]
+ppa
+```
 
 ## Save datasets
 ```{r}
 write.csv(df4, "../../data/train_preprocessed_rounds.csv", row.names=FALSE)
-write.csv(stat_df, "../../data/train_preprocessed_stats.csv", row.names=FALSE)
+write.csv(stat_df, "../../data/train_preprocessed_stats_per_round.csv", row.names=FALSE)
+write.csv(per_player_agg, "../../data/train_preprocessed_stats_per_player.csv", row.names=FALSE)
 ```
     
 
