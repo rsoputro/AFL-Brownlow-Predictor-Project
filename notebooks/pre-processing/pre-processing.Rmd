@@ -51,14 +51,23 @@ stat_cols = c("Behinds", "Bounces", "Brownlow.Votes", "Clangers", "Clearances", 
     "Hit.Outs", "Inside.50s", "Kicks", "Marks", "Marks.Inside.50", "One.Percenters", "Rebounds",
     "Tackles", "Uncontested.Possessions")
 
-df2 = pivot_longer(df1, names_to="stat_name", values_to="value", cols=stat_cols)
-df3 = pivot_wider(df2, id_cols = c("Group.1", "Group.2", "stat_name"), names_from = "Group.3")
-df3
+df2 = pivot_longer(df1, names_to="stat", values_to="value", cols=stat_cols)
+df3 = pivot_wider(df2, id_cols = c("Group.1", "Group.2", "stat"), names_from = "Group.3")
+
+# Order the columns
+col_order = c("Group.1", "Group.2", "stat", valid_round_names)
+df4 <- df3[, col_order]
+
+# Rename columns
+names(df4)[names(df4) == 'Group.1'] <- 'playerId'
+names(df4)[names(df4) == 'Group.2'] <- 'displayName'
+
+df4
 ```
 
 ## Save dataset
 ```{r}
-
+write.csv(df4, "../../data/train_preprocessed.csv", row.names=FALSE)
 ```
     
 

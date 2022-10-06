@@ -23,5 +23,5 @@ library(benchmarkme)
 
 ## Load in the Raw Stats
 ```{r}
-raw_stats = read.csv("../../data/pre_processed_stats.csv")
+raw_stats = read.csv("../../data/train_preprocessed.csv")
 ```
