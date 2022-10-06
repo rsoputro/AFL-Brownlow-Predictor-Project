@@ -6,6 +6,11 @@ This project was conducted by Thomas Johnstone, Richard, and Luke Mason, with su
 
 
 This R Notebook is responsible for pre processing the AFL stats so that they can be consumed by the JAGS model.
+## Imports
+```{r}
+library(tidyr)
+```
+
 
 ## Load in the training set
 ```{r}
@@ -18,8 +23,8 @@ Create the list of round names
 # Create initial list of valid round names.
 valid_round_names <- c()
 
-# Create 21 round names.
-for (num in 1:21) {
+# Create 23 round names.
+for (num in 1:23) {
   # Append round names to valid round name list
   valid_round_names <- c(valid_round_names, paste("R", num, sep=""))
 }
