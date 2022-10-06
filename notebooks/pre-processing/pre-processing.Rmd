@@ -74,7 +74,7 @@ df4
 
 
 ```{r}
-df <- agg
+df <- df1
 # Rename columns
 names(df)[names(df) == 'Group.1'] <- 'playerId'
 names(df)[names(df) == 'Group.2'] <- 'displayName'
@@ -89,7 +89,7 @@ stat_df
 ## Save datasets
 ```{r}
 write.csv(df4, "../../data/train_preprocessed_rounds.csv", row.names=FALSE)
-write.csv(df, "../../data/train_preprocessed_stats.csv", row.names=FALSE)
+write.csv(stat_df, "../../data/train_preprocessed_stats.csv", row.names=FALSE)
 ```
     
 
