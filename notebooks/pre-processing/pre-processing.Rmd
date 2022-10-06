@@ -44,47 +44,30 @@ agg = aggregate(filtered_df, by=list(raw_stats$playerId, raw_stats$displayName, 
 
 # Remove rows who's round is not in the list of valid round names
 # This is because the finals rounds exist after round 22 and there are no brownlow points assigned to players during these games, which makes these rows redundant.
-agg2 <- agg[ agg$Group.3 %in% valid_round_names, ]
-
-agg2
-
-#agg <- aggregate(Kicks ~ round + playerId, data=raw_stats, FUN="mean")
-#agg["Bounces"] <- aggregate(Bounces ~ round + playerId, data=raw_stats, FUN="mean")[3]
-
-#agg
-```
-Behinds, Bounces, Brownlow.Votes, Clangers, Clearances, Contested.Marks, Contested.Possessions,
-    Disposals, Frees, Frees.Against, gameNumber, Goal.Assists, Goals, Handballs,
-    Hit.Outs, Inside.50s, Kicks, Marks, Marks.Inside.50, One.Percenters, Rebounds,
-    Tackles, Uncontested.Possessions, 
-    
-```{r}
-library(tidyr)
+df1 <- agg[ agg$Group.3 %in% valid_round_names, ]
 
 stat_cols = c("Behinds", "Bounces", "Brownlow.Votes", "Clangers", "Clearances", "Contested.Marks", "Contested.Possessions",
     "Disposals", "Frees", "Frees.Against", "Goal.Assists", "Goals", "Handballs",
     "Hit.Outs", "Inside.50s", "Kicks", "Marks", "Marks.Inside.50", "One.Percenters", "Rebounds",
     "Tackles", "Uncontested.Possessions")
 
-agg3 = pivot_wider(agg2[1:100,], id_cols = c("Group.1", "Group.2"), names_from = "Group.3", values_from = stat_cols)
-agg3
+df2 = pivot_longer(df1, names_to="stat_name", values_to="value", cols=stat_cols)
+df3 = pivot_wider(df2, id_cols = c("Group.1", "Group.2", "stat_name"), names_from = "Group.3")
+df3
 ```
 
+## Save dataset
 ```{r}
-agg3
-```
 
-```{r}
-agg3 = pivot_longer(agg2[1:100,], names_to="stat_name", values_to="value", cols=stat_cols)
-agg4 = pivot_wider(agg3, id_cols = c("Group.1", "Group.2"), names_from = "Group.3", values_from = stat_cols)
-agg4
 ```
+    
 
-```{r}
-library(reshape2)
 
-agg3 <- cbind(ID=rownames(valid_round_names),  agg2)
-melt(agg3)
-#data.frame(rows = row.names(valid_round_names), stack(agg2))
-```
+
+
+
+
+
+
+
 
