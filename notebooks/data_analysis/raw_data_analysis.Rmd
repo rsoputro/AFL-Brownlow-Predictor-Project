@@ -66,40 +66,29 @@ for (val in 1:ncol(raw_stats)) {
 }
 ```
 
-
 ```{r}
-
-
-# table(price_data)
-# Table of counts per unique value.
-# table(SalePrice.100K.)
-# table(Area)
-table(Bedrooms)
-table(Bathrooms)
-table(CarParks)
-table(PropertyType)
-
-library(gridExtra)
-library(grid)
-table(price_data$PropertyType)
-tb <- table(price_data$PropertyType)
-df <- data.frame("Houses"=c(tb)[1],"Units"=c(tb)[2]) 
-grid.table(df)
+table(raw_stats$round)
+```
 
 # Density function.
-plot(kde(SalePrice.100K.), xlab="SalePrice(100K)", main="Density of Sale Pricings Per 100K")
-plot(kde(Area), xlab="Area(sqrm)", main="Density of Area(sqrm)")
-plot(kde(Bedrooms), xlab="Bedrooms", main="Density of Bedrooms")
-plot(kde(Bathrooms), xlab="Bathrooms",main="Density of Bathrooms")
-plot(kde(CarParks), xlab="Car Parks", main="Density of Car Parks")
-plot(kde(PropertyType), xlab="Property Type", main="Density of Property Type")
+```{r}
+for (val in 1:ncol(raw_stats)) {
+  colName <- names(raw_stats)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs", "Hit.Outs", "Brownlow.Votes", "Bounces"), colName)) {
+    # Skip these fields
+    next
+  }
+  print(colName)
+  title <- paste("Density of ", colName)
+  plot(kde(unlist(raw_stats[val])), xlab=colName, main=title)
+}
+```
 
-# Scatterplot of each independant variable against the dependant variable.
-# plot(Area, SalePrice.100K., main="Sale Price(100K) vs Area(sqrm)", pch=5)
-# plot(Bedrooms, SalePrice.100K., main="Sale Pric(100K)e vs Bedrooms", pch=5)
-# plot(Bathrooms, SalePrice.100K., main="Sale Price(100K) vs Bathrooms", pch=5)
-# plot(CarParks, SalePrice.100K., main="Sale Price(100K) vs Car Parks", pch=5)
-# plot(PropertyType, SalePrice.100K., main="Sale Price(100K) vs Property Type", pch=5)
+
+
+```{r}
 
 library(car)
 scatterplot(SalePrice.100K. ~ Area,         data=price_data, xlab="Area",          ylab="Sale Price (100K)", main="Sale Price(100K) vs Area(sqrm)")

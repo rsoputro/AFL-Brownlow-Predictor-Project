@@ -23,5 +23,55 @@ library(benchmarkme)
 
 ## Load in the Raw Stats
 ```{r}
-raw_stats = read.csv("../../data/train_preprocessed.csv")
+df = read.csv("../../data/train_preprocessed_stats_per_player.csv")
+```
+
+## Exploratory Data Analysis
+
+### Peek at the stats
+```{r}
+head(df)
+```
+
+### A Summary of the stats
+```{r}
+summary(df)
+```
+
+### Histograms of frequencies
+These are the histograms of each stat field for all games over 10 years.
+
+```{r}
+print(names(df))
+```
+### Frequency over all players
+```{r}
+for (val in 1:ncol(df)) {
+  colName <- names(df)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs"), colName)) {
+    # Skip these fields
+    next
+  }
+  
+  title <- paste("Count of ", colName)
+  hist(as.matrix(df[val]), xlab=colName, main=title)
+}
+```
+
+# Scatter Plots
+```{r}
+for (val in 1:ncol(df)) {
+  colName <- names(df)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs"), colName)) {
+    # Skip these fields
+    next
+  }
+  print(colName)
+  title <- paste("Scatter plot of ", colName)
+  plot(unlist(df[val]), xlab=colName, main=title)
+}
 ```
