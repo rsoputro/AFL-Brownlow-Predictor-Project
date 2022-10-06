@@ -11,10 +11,8 @@ train <- read.csv("../../data/train_preprocessed_stats_per_round.csv")
 test <- read.csv("../../data/test_set.csv")
 ```
 
-
 #============================== Create Data List =============================
 ```{r}
-
 # summary(as.matrix(train[,2:6]))
 # print(as.matrix(train[,2:6]))
 
@@ -22,44 +20,35 @@ y <- train$SalePrice.100K.
 x <- as.matrix(train[,2:6])
 xPred = as.matrix(test[,2:6])
 
+# The evaluation Guesses as per the assignment.
+guesses <- data.frame(
+  "Area" =         c(600, 800, 1500, 2500, 250), 
+  "Bedrooms" =     c(2,   3,   2,    5,    3),
+  "Bathrooms" =    c(2,   1,   1,    4,    2),
+  "CarParks" =     c(1,   2,   1,    4,    1),
+  "PropertyType" = c(1,   0,   0,    0,    1)
+)
+
+xGuess = as.matrix(guesses)
+
 dataList = list(
-  x = x ,
-  y = y ,
-  xPred = xPred ,
+  x = x,
+  y = y,
+  xPred = xPred,
+  xGuess = xGuess,
   rowCount = length(y),
   colCount = ncol(x), 
-  predCount = nrow(xPred)
+  predCount = nrow(xPred),
+  guessCount = nrow(xGuess)
 )
 ```
+
 
 #======================= Writing the Model to Text File =======================
 ```{r}
 modelString = "
-# Standardize Continuous Independent Variables.
 data {
   yMean <- mean(y)
-  yStd <- sd(y)
-  
-  xMean[1] <- mean(x[,1])
-  xMean[2] <- mean(x[,2])
-  xMean[3] <- mean(x[,3])
-  xMean[4] <- mean(x[,4])
-  
-  xStd[1] <- sd(x[,1])
-  xStd[2] <- sd(x[,2])
-  xStd[3] <- sd(x[,3])
-  xStd[4] <- sd(x[,4])
-  for (i in 1:rowCount) {
-    # X
-    zx[i,1] <- (x[i,1] - xMean[1]) / xStd[1]
-    zx[i,2] <- (x[i,2] - xMean[2]) / xStd[2]
-    zx[i,3] <- (x[i,3] - xMean[3]) / xStd[3]
-    zx[i,4] <- (x[i,4] - xMean[4]) / xStd[4]
-    zx[i,5] <- x[i,5] # 5th variable is not continuous.
-     
-    # Y
-    zy[i] <- (y[i] - yMean) / yStd
-  }
  
   # Specify the priors for original beta parameters
   # Prior locations to reflect the expert information
@@ -74,80 +63,77 @@ data {
   mu[4] <- 1.2        # CarParks     -   120,000 AUD per car park   ordinal variable
   mu[5] <- -1.5       # PropertyType -  -150,000 AUD for 1, 0 for 0 categorical
   # Prior variances to reflect the expert information
-  Var0 <- 1 # Set simply to 1
-  Var[1] <- 0.0002  # Area         - Very Strong
-  Var[2] <- 0.01   # Bedrooms     - Weak
-  Var[3] <- 1000  # Bathrooms    - None
-  Var[4] <- 0.001   # CarParks     - Strong
-  Var[5] <- 0.0002  # PropertyType - Very Strong
-  
-  # Compute corresponding prior means and variances for the standardised parameters
-  muZ[1:4] <-  mu[1:4] * xStd[1:4] / yStd
-  muZ[5] <- mu[5]
-  muZ0 <- (mu0 + mu[5] + sum( mu[1:4] * xMean[1:4] / xStd[1:4] ) * yStd - yMean) / yStd
-  VarZ[1:4] <- Var[1:4] * ( xStd[1:4]/ yStd )^2
-  VarZ[5] <- Var[5]
-  VarZ0 <- Var0 / (yStd^2)
+  Var0   <- 1.00000 # Set simply to 1
+  Var[1] <- 0.0000000001  # Area         - Very Strong
+  Var[2] <- 0.00300   # Bedrooms     - Weak
+  Var[3] <- 1000.00  # Bathrooms    - None
+  Var[4] <- 0.00010   # CarParks     - Strong
+  Var[5] <- 0.000001  # PropertyType - Very Strong
 }
 # Model
 model {
+  beta0   ~ dnorm(mu0,  1/Var0)  
+  beta[1] ~ dnorm(mu[1], 1/Var[1])
+  beta[2] ~ dnorm(mu[2], 1/Var[2])
+  beta[3] ~ dnorm(mu[3], 1/Var[3])
+  beta[4] ~ dnorm(mu[4], 1/Var[4])
+  beta[5] ~ dnorm(mu[5], 1/Var[5])
+  # High variance as it is unknown
+  precision ~ dexp(1/30.0) 
+  
   for (i in 1:rowCount) {
+  
     # Normal Likelihood
     y[i] ~ dnorm(beta0 + 
-          beta[1] * x[i,1] +
-          beta[2] * x[i,2] +
-          beta[3] * x[i,3] +
-          beta[4] * x[i,4] +
-          beta[5] * x[i,5], precision)
+          (beta[1] * x[i,1]) +
+          (beta[2] * x[i,2]) +
+          (beta[3] * x[i,3]) +
+          (beta[4] * x[i,4]) +
+          (beta[5] * x[i,5]), precision)
   }
-  precision ~ dexp(1/30.0) # High variance as it is unknown
-  
-  # Priors vague on standardized scale:
-  zbeta0 ~ dnorm(muZ0, 1/VarZ0)  
-  zbeta[1] ~ dnorm(muZ[1], 1/VarZ[1])
-  zbeta[2] ~ dnorm(muZ[2], 1/VarZ[2])
-  zbeta[3] ~ dnorm(muZ[3], 1/VarZ[3])
-  zbeta[4] ~ dnorm(muZ[4], 1/VarZ[4])
-  zbeta[5] ~ dnorm(muZ[5], 1/VarZ[5])
-  # Transform to original scale:
-  beta0 <- zbeta0 - (sum(zbeta[1:4] * xMean[1:4] / xStd[1:4]) + zbeta[5])
-  beta[1] <- zbeta[1] / xStd[1]
-  beta[2] <- zbeta[2] / xStd[2]
-  beta[3] <- zbeta[3] / xStd[3]
-  beta[4] <- zbeta[4] / xStd[4]
-  beta[5] <- zbeta[5]
-  
-  
   # Compute predictions at every step of the MCMC
   for (k in 1:predCount) {
-    pred[k] <- 
-        beta0 + 
-        beta[1] * xPred[k,1] + 
-        beta[2] * xPred[k,2] + 
-        beta[3] * xPred[k,3] + 
-        beta[4] * xPred[k,4] +
-        beta[5] * xPred[k,5]
+    pred[k] <- beta0 + 
+        (beta[1] * xPred[k,1]) + 
+        (beta[2] * xPred[k,2]) + 
+        (beta[3] * xPred[k,3]) + 
+        (beta[4] * xPred[k,4]) +
+        (beta[5] * xPred[k,5])
+  }
+  
+  for (k in 1:guessCount) {
+    guess[k] <- beta0 + 
+        (beta[1] * xGuess[k,1]) + 
+        (beta[2] * xGuess[k,2]) + 
+        (beta[3] * xGuess[k,3]) + 
+        (beta[4] * xGuess[k,4]) +
+        (beta[5] * xGuess[k,5])
   }
 }"
 
 writeLines(modelString, con="TEMPmodel.txt")
 ```
 
-# ================ Linear Regression =====================
+# Linear Regression
 ```{r}
-parameters = c("zbeta0","beta0")
+parameters = c("beta0")
 for ( i in 1:5){
-  parameters = c(parameters, paste0("zbeta[",i,"]"), paste0("beta[",i,"]"))
+  parameters = c(parameters, paste0("beta[",i,"]"))
+}
+for ( i in 1:nrow(xGuess)){
+  parameters = c(parameters, paste0("guess[",i,"]"))
 }
 for ( i in 1:nrow(xPred)){
   parameters = c(parameters, paste0("pred[",i,"]"))
 }
 
-adaptSteps = 1000
-burnInSteps = 2000
+
+adaptSteps = 50
+burnInSteps = 100
 nChains = 2
-thinSteps = 6
-numSavedSteps = 4000
+thinSteps = 17
+numSavedSteps = 15000
+
 nIter = ceiling( ( numSavedSteps * thinSteps ) / nChains )
 
 startTime = proc.time()
@@ -166,6 +152,8 @@ duration = stopTime - startTime
 show(duration)
 codaSamples = as.mcmc.list( runJagsOut )
 # sink()
+# save( codaSamples , file=paste("A2Run4","Mcmc.Rdata",sep="") )
+# save.image(file='A2Run4.RData')
 ```
 
 # ============= Display Results ============
@@ -175,67 +163,64 @@ for ( i in 1:5){
   diagMCMC( codaSamples , parName=paste0("beta[",i,"]") )
 }
 
+
 graphics.off()
 
-compVal <- data.frame("beta0" = 1, "beta[1]" = 90/100000, "beta[2]" = 1, "beta[3]" = 0, "beta[4]" =  1.2, "beta[5]" =  -1.5, check.names=FALSE)
-summaryInfo <- smryMCMC( codaSamples = codaSamples , compVal = compVal )
+compVal <- data.frame("beta0" = 1, "beta[1]" = 90/100000, "beta[2]" = 1, "beta[3]" = 2, "beta[4]" =  1.2, "beta[5]" =  -1.5, check.names=FALSE)
+summaryInfo <- smryMCMC( codaSamples = codaSamples , compVal = compVal, saveName="SummaryInfo" )
 
-plotMCMC( codaSamples = codaSamples , data = price_data, xName=c("Area","Bedrooms","Bathrooms","CarParks", "PropertyType") , 
-          yName="SalePrice.100K.", compVal = compVal, preds = TRUE)
+
+plotMCMC_HD( codaSamples = codaSamples, data = price_data, xName=c("Area","Bedrooms","Bathrooms","CarParks", "PropertyType") ,
+             yName="SalePrice.100K.", compVal = compVal, preds = TRUE)
 ```
 
 # ============ Predictive check ============
 ```{r}
 modes = summaryInfo[,"Mode"]
-# 14 is the number of rows skipping beta and zbeta and heading rows = (6 + 6 + 2)
-guesses = modes[14:length(modes) - 1]
+# 14 is the number of rows skipping beta and heading rows = (6 + 5 + 2)
+predictions = modes[13:length(modes) - 1]
 real = c(test$SalePrice.100K.)
+length(predictions)
+length(real)
 n = length(real)
 # MAE
-sum(abs(guesses - real))/n
+sum(abs(predictions - real))/n
 # MSE
-sum((real - guesses)^2)
+mse = sum((real - predictions)^2)
+mse
 # RMSE
 sqrt(mse/n)
 ```
-# TODO REMOVE THIS EXAMPLE
-
-#=============================RUN n EXAMPLE================================
-# Var0 <- 1 # Set simply to 1
-# Var[1] <- 0.01  # Area         - Very Strong
-# Var[2] <- 1   # Bedrooms     - Weak
-# Var[3] <- 1000  # Bathrooms    - None
-# Var[4] <- 0.1   # CarParks     - Strong
-# Var[5] <- 0.01  # PropertyType - Very Strong
-#
-# adaptSteps = 25
-# burnInSteps = 50
-# nChains = 2
-# thinSteps = 23
-# numSavedSteps = 100
-# 
-# user  system elapsed 
-# 1.18    0.53   41.95
-
-# MAE = 3.350982
-# MSE = 30768.42
-# RMSE = 5.549705
-# 
-# save( codaSamples , file=paste("A2Run1","Mcmc.Rdata",sep="") )
-# save.image(file='A2Run1.RData')
-# load('A2Run1.RData')
 
 
+#========= Guess Check ===============
+```{r}
+print(modes[8:12])
+```
 
-# Modelling
+#=============================RUN 1 EXAMPLE Overwrite================================
+Var0 <- 1 # Set simply to 1
+Var[1] <- 0.01  # Area         - Very Strong
+Var[2] <- 1   # Bedrooms     - Weak
+Var[3] <- 1000  # Bathrooms    - None
+Var[4] <- 0.1   # CarParks     - Strong
+Var[5] <- 0.01  # PropertyType - Very Strong
+Simple models move away from the starting values fairly quickly and so there 
+is no need to have a lot of burn in after the adaptation, as the iterations discarded during adaptation is ususally enough.
 
+adaptSteps = 50
+burnInSteps = 100
+nChains = 2
+thinSteps = 23
+numSavedSteps = 5000
 
+user  system elapsed 
+8.42    1.50  419.23 
 
-### JAGS Model
+MAE = 3.359888
+MSE = 30779.89
+RMSE = 5.550739
 
-
-### Run JAGS
-
-
-
-### Results
+save( codaSamples , file=paste("A2Run1","Mcmc.Rdata",sep="") )
+save.image(file='A2Run1.RData')
+load('A2Run1.RData')
