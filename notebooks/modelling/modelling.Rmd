@@ -13,7 +13,6 @@ test <- read.csv("../../data/test_set.csv")
 
 
 #============================== Create Data List =============================
-
 ```{r}
 
 # summary(as.matrix(train[,2:6]))

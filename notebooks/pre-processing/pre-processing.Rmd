@@ -97,12 +97,18 @@ names(per_player_agg)[names(per_player_agg) == 'Group.2'] <- 'displayName'
 ppa <- per_player_agg[order(per_player_agg$playerId, per_player_agg$displayName),]
 ppa
 ```
+```{r}
+all_stats <- raw_stats[ raw_stats$round %in% valid_round_names, ]
+all_stats
+```
+
 
 ## Save datasets
 ```{r}
 write.csv(df4, "../../data/train_preprocessed_rounds.csv", row.names=FALSE)
 write.csv(stat_df, "../../data/train_preprocessed_stats_per_round.csv", row.names=FALSE)
 write.csv(per_player_agg, "../../data/train_preprocessed_stats_per_player.csv", row.names=FALSE)
+write.csv(all_stats, "../../data/train_preprocessed_all_stats.csv", row.names=FALSE)
 ```
     
 
