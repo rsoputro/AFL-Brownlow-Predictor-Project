@@ -70,16 +70,28 @@ names(df4)[names(df4) == 'Group.2'] <- 'displayName'
 df4
 ```
 
-## Save dataset
+
+
+
 ```{r}
-write.csv(df4, "../../data/train_preprocessed.csv", row.names=FALSE)
+df <- agg
+# Rename columns
+names(df)[names(df) == 'Group.1'] <- 'playerId'
+names(df)[names(df) == 'Group.2'] <- 'displayName'
+names(df)[names(df) == 'Group.3'] <- 'round'
+
+attach(df)
+stat_df <- df[order(playerId, displayName, round),]
+stat_df
+```
+
+
+## Save datasets
+```{r}
+write.csv(df4, "../../data/train_preprocessed_rounds.csv", row.names=FALSE)
+write.csv(df, "../../data/train_preprocessed_stats.csv", row.names=FALSE)
 ```
     
-
-
-
-
-
 
 
 
