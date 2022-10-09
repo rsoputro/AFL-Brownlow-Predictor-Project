@@ -14,7 +14,7 @@ library(tidyr)
 
 ## Load in the training set
 ```{r}
-raw_stats = read.csv("../../data/train_set.csv")
+raw_stats = read.csv("../../data/raw_stats.csv")
 ```
 
 
@@ -105,10 +105,9 @@ all_stats
 
 ## Save datasets
 ```{r}
-write.csv(df4, "../../data/train_preprocessed_rounds.csv", row.names=FALSE)
-write.csv(stat_df, "../../data/train_preprocessed_stats_per_round.csv", row.names=FALSE)
-write.csv(per_player_agg, "../../data/train_preprocessed_stats_per_player.csv", row.names=FALSE)
-write.csv(all_stats, "../../data/train_preprocessed_all_stats.csv", row.names=FALSE)
+write.csv(stat_df, "../../data/preprocessed_stats_per_unque_round.csv", row.names=FALSE)
+write.csv(per_player_agg, "../../data/preprocessed_stats_per_career.csv", row.names=FALSE)
+write.csv(all_stats, "../../data/preprocessed_all_stats.csv", row.names=FALSE)
 ```
     
 
