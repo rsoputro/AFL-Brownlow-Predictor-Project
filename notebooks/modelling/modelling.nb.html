@@ -1686,8 +1686,8 @@ pre code {
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -1695,16 +1695,9 @@ pre code {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -1771,21 +1764,68 @@ pre code {
 <p>Read train and test sets from files.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxudHJhaW4gPC0gcmVhZC5jc3YoXFxkYXRhL3RyYWluX3NldC5jc3ZcXClcbnRlc3QgPC0gcmVhZC5jc3YoXFxkYXRhL3Rlc3Rfc2V0LmNzdlxcKVxuYGBgXG5gYGAifQ== -->
-<pre class="r"><code>```r
-train &lt;- read.csv(\data/train_set.csv\)
-test &lt;- read.csv(\data/test_set.csv\)</code></pre>
-<p>```</p>
-<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <div id="modelling" class="section level1">
 <h1>Modelling</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGF0YUxpc3QgPSBsaXN0KFxuICB4ID0geCxcbiAgeSA9IHksXG4gIHhQcmVkID0geFByZWQsXG4gIHJvd0NvdW50ID0gbGVuZ3RoKHkpLFxuICBjb2xDb3VudCA9IG5jb2woeCksIFxuICBwcmVkQ291bnQgPSBucm93KHhQcmVkKSxcbilcblxuYGBgIn0= -->
+<pre class="r"><code>dataList = list(
+  x = x,
+  y = y,
+  xPred = xPred,
+  rowCount = length(y),
+  colCount = ncol(x), 
+  predCount = nrow(xPred),
+)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gbGlzdCh4ID0geCwgeSA9IHksIHhQcmVkID0geFByZWQsIHJvd0NvdW50ID0gbGVuZ3RoKHkpLCBjb2xDb3VudCA9IG5jb2woeCksICA6IFxuICBhcmd1bWVudCA3IGlzIGVtcHR5XG4ifQ== -->
+<pre><code>Error in list(x = x, y = y, xPred = xPred, rowCount = length(y), colCount = ncol(x),  : 
+  argument 7 is empty</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <div id="jags-model" class="section level3">
 <h3>JAGS Model</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 </div>
 <div id="run-jags" class="section level3">
 <h3>Run JAGS</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYWRhcHRTdGVwcyA9IDUwXG5idXJuSW5TdGVwcyA9IDEwMFxubkNoYWlucyA9IDJcbnRoaW5TdGVwcyA9IDE3XG5udW1TYXZlZFN0ZXBzID0gMTUwMDBcblxubkl0ZXIgPSBjZWlsaW5nKCAoIG51bVNhdmVkU3RlcHMgKiB0aGluU3RlcHMgKSAvIG5DaGFpbnMgKVxuXG5zdGFydFRpbWUgPSBwcm9jLnRpbWUoKVxuIyBzaW5rKFwiZGVidWcyLnR4dFwiKVxucnVuSmFnc091dCA8LSBydW4uamFncyggbWV0aG9kPVwicGFyYWxsZWxcIiAsXG4gICAgICAgICAgICAgICAgICAgICAgICBtb2RlbD1cIlRFTVBtb2RlbC50eHRcIiAsXG4gICAgICAgICAgICAgICAgICAgICAgICBtb25pdG9yPXBhcmFtZXRlcnMgICxcbiAgICAgICAgICAgICAgICAgICAgICAgIGRhdGE9ZGF0YUxpc3QgLFxuICAgICAgICAgICAgICAgICAgICAgICAgbi5jaGFpbnM9bkNoYWlucyAsXG4gICAgICAgICAgICAgICAgICAgICAgICBhZGFwdD1hZGFwdFN0ZXBzICxcbiAgICAgICAgICAgICAgICAgICAgICAgIGJ1cm5pbj1idXJuSW5TdGVwcyAsXG4gICAgICAgICAgICAgICAgICAgICAgICBzYW1wbGU9bnVtU2F2ZWRTdGVwcyAsXG4gICAgICAgICAgICAgICAgICAgICAgICB0aGluPXRoaW5TdGVwcyAsIHN1bW1hcmlzZT1GQUxTRSAsIHBsb3RzPUZBTFNFIClcblxuYGBgIn0= -->
+<pre class="r"><code>adaptSteps = 50
+burnInSteps = 100
+nChains = 2
+thinSteps = 17
+numSavedSteps = 15000
+
+nIter = ceiling( ( numSavedSteps * thinSteps ) / nChains )
+
+startTime = proc.time()
+# sink(&quot;debug2.txt&quot;)
+runJagsOut &lt;- run.jags( method=&quot;parallel&quot; ,
+                        model=&quot;TEMPmodel.txt&quot; ,
+                        monitor=parameters  ,
+                        data=dataList ,
+                        n.chains=nChains ,
+                        adapt=adaptSteps ,
+                        burnin=burnInSteps ,
+                        sample=numSavedSteps ,
+                        thin=thinSteps , summarise=FALSE , plots=FALSE )
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gcnVuLmphZ3MobWV0aG9kID0gXCJwYXJhbGxlbFwiLCBtb2RlbCA9IFwiVEVNUG1vZGVsLnR4dFwiLCBtb25pdG9yID0gcGFyYW1ldGVycywgIDogXG4gIGNvdWxkIG5vdCBmaW5kIGZ1bmN0aW9uIFwicnVuLmphZ3NcIlxuIn0= -->
+<pre><code>Error in run.jags(method = &quot;parallel&quot;, model = &quot;TEMPmodel.txt&quot;, monitor = parameters,  : 
+  could not find function &quot;run.jags&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 </div>
 <div id="results" class="section level3">
 <h3>Results</h3>
@@ -1793,7 +1833,7 @@ test &lt;- read.csv(\data/test_set.csv\)</code></pre>
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkFGTCBNb2RlbGxpbmciDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpSZWFkIHRyYWluIGFuZCB0ZXN0IHNldHMgZnJvbSBmaWxlcy4NCmBgYHtyfQ0KdHJhaW4gPC0gcmVhZC5jc3YoIi4uLy4uL2RhdGEvdHJhaW5fc2V0LmNzdiIpDQp0ZXN0IDwtIHJlYWQuY3N2KCIuLi8uLi9kYXRhL3Rlc3Rfc2V0LmNzdiIpDQpgYGANCg0KIyBNb2RlbGxpbmcNCg0KDQoNCiMjIyBKQUdTIE1vZGVsDQoNCg0KIyMjIFJ1biBKQUdTDQoNCg0KDQojIyMgUmVzdWx0cw0K</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQUZMIE1vZGVsbGluZyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKUmVhZCB0cmFpbiBhbmQgdGVzdCBzZXRzIGZyb20gZmlsZXMuCmBgYHtyfQp0cmFpbiA8LSByZWFkLmNzdigiLi4vLi4vZGF0YS90cmFpbl9zZXQuY3N2IikKdGVzdCA8LSByZWFkLmNzdigiLi4vLi4vZGF0YS90ZXN0X3NldC5jc3YiKQoKCmBgYAoKIyBNb2RlbGxpbmcKCmBgYHtyfQpzdW1tYXJ5KHRyYWluKQp5IDwtIHRyYWluJEJyb3dubG93LlZvdGVzCnggPC0gYXMubWF0cml4KHRyYWluWyw3OjMwXSkKeCA8LSAteFssLTE2XQp4UHJlZCA9IGFzLm1hdHJpeCh0ZXN0Wyw3OjMwXSkKeFByZWQgPC0gLXhQcmVkWywtMTZdCgpkYXRhTGlzdCA9IGxpc3QoCiAgeCA9IHgsCiAgeSA9IHksCiAgeFByZWQgPSB4UHJlZCwKICByb3dDb3VudCA9IGxlbmd0aCh5KSwKICBjb2xDb3VudCA9IG5jb2woeCksIAogIHByZWRDb3VudCA9IG5yb3coeFByZWQpCikKCgoKYGBgCgoKCiMjIyBKQUdTIE1vZGVsCmBgYHtyfQoJbW9kZWxTdHJpbmcgPSAiCglkYXRhIHsKCSAgeU1lYW4gPC0gbWVhbih5KQoJIAoJICAjIFNwZWNpZnkgdGhlIHByaW9ycyBmb3Igb3JpZ2luYWwgYmV0YSBwYXJhbWV0ZXJzCgkgICMgUHJpb3IgbG9jYXRpb25zIHRvIHJlZmxlY3QgdGhlIGV4cGVydCBpbmZvcm1hdGlvbgoJICAjIFJlZ3Jlc3Npb24gY29lZmZpZW50IGluIExSIGluZGljYXRlcyBob3cgbXVjaCAxIHVuaXQgb2YgY2hhbmdlIG9mIHRoZSAKCSAgIyBwcmVkaWN0b3IgaW5jcmVhc2VzIHRoZSBsb2cgb2RkcyBvZiBvdXRjb21lIDEuCgkgICMgU2V0IHRvIG92ZXJhbGwgbWVhbiBhIHByaW9yaSBiYXNlZCBvbiB0aGUgaW50ZXJwcmV0YXRpb24gb2YgY29uc3RhbnQgdGVybSBpbiByZWdyZXNzaW9uCgkgIAoJICBtdTAgPC0geU1lYW4gCgkgIG11WzFdIDwtIDAKCSAgbXVbMl0gPC0gMS81NCowLjM2CgkgIG11WzNdIDwtIDEvMzYqMC4zNgoJICBtdVs0XSA8LSAxLzE5KjAuMDY3CgkgIG11WzVdIDwtIDEvMzUqMC4zNgoJICBtdVs2XSA8LSAxLzExKjEuMgoJICBtdVs3XSA8LSAxLzcqMC4wNjcKCSAgbXVbOF0gPC0gMAoJICBtdVs5XSA8LSAxLzE5KjAuMDY3CgkgIG11WzEwXSA8LSAwCgkgIG11WzExXSA8LSAxLzE2KjAuMzYKCSAgbXVbMTJdIDwtIDEvMzYqMS4yCgkgIG11WzEzXSA8LSAxLzE1KjAuMDY3CgkgIG11WzE0XSA8LSAxLzkqMC4wNjcKCSAgbXVbMTVdIDwtIDAKCSAgbXVbMTZdIDwtIDEvMzIqMS4yCgkgIG11WzE3XSA8LSAxLzQwKjAuMDY3CgkgIG11WzE4XSA8LSAxLzkqMC4wNjcKCSAgbXVbMTldIDwtIDEvMTMqMC4zNgoJICBtdVsyMF0gPC0gMAoJICBtdVsyMV0gPC0gMS8xNSowLjA2NwoJICBtdVsyMl0gPC0gMS82KjAuMDY3CgkgIG11WzIzXSA8LSAwCgkgIAoJICAjIFByaW9yIHZhcmlhbmNlcyB0byByZWZsZWN0IHRoZSBleHBlcnQgaW5mb3JtYXRpb24KCSAgVmFyMCAgIDwtIDEuMDAwMDAgIyBTZXQgc2ltcGx5IHRvIDEKCSAgZm9yIChpIGluIDE6Y29sQ291bnQpIHsKCSAgICB2YXJbaV0gPC0gMC4yNQoJICB9ICAKCX0KCSMgTW9kZWwKCW1vZGVsIHsKCSAgYmV0YTAgICB+IGRub3JtKG11MCwgIDEvVmFyMCkKCSAgZm9yIChqIGluIDE6Y29sQ291bnQpIHsKCSAgICBiZXRhW2pdIH4gZG5vcm0obXVbal0sIDEvdmFyW2pdKQoJICAgIH0KCSAgfQoJICAKCSAgCgkgICMgLi4uIHZhcmlhbmNlIGFzIGl0IGlzIC4uLgoJICBwcmVjaXNpb24gfiBkZXhwKDEvMC4yNSkgCgkgIAoJICBmb3IgKGkgaW4gMTpyb3dDb3VudCkgewoJICAKCSAgICAjIE5vcm1hbCBMaWtlbGlob29kCgkgICAgI2EgPSAwCgkgICAgI2ZvciAoaSBpbiAxOjIzKSB7CgkgICAgI2IgPSBiZXRhW2ldIH4gZG5vcm0obVtpXSwgMS9WYXJbaV0pCgkgICAgI2EgPSBhK2IKCSAgICAjYmV0YTAgICB+IGRub3JtKG11MCwgIDEvVmFyMCkgKyBhIAoJICAgIHlbaV0gfiBkbm9ybShiZXRhMCArIAoJICAgICAgICAgIChiZXRhWzFdICogeFtpLDFdKSArCgkgICAgICAgICAgKGJldGFbMl0gKiB4W2ksMl0pICsKCSAgICAgICAgICAoYmV0YVszXSAqIHhbaSwzXSkgKwoJICAgICAgICAgIChiZXRhWzRdICogeFtpLDRdKSArCgkgICAgICAgICAgKGJldGFbNV0gKiB4W2ksNV0pICsKCSAgICAgICAgICAoYmV0YVs2XSAqIHhbaSw2XSkgKwoJICAgICAgICAgIChiZXRhWzddICogeFtpLDddKSArCgkgICAgICAgICAgKGJldGFbOF0gKiB4W2ksOF0pICsKCSAgICAgICAgICAoYmV0YVs5XSAqIHhbaSw5XSkgKwoJICAgICAgICAgIChiZXRhWzEwXSAqIHhbaSwxMF0pICsKCSAgICAgICAgICAoYmV0YVsxMV0gKiB4W2ksMTFdKSArCgkgICAgICAgICAgKGJldGFbMTJdICogeFtpLDEyXSkgKwoJICAgICAgICAgIChiZXRhWzEzXSAqIHhbaSwxM10pICsKCSAgICAgICAgICAoYmV0YVsxNF0gKiB4W2ksMTRdKSArCgkgICAgICAgICAgKGJldGFbMTVdICogeFtpLDE1XSkgKwoJICAgICAgICAgIChiZXRhWzE2XSAqIHhbaSwxNl0pICsKCSAgICAgICAgICAoYmV0YVsxN10gKiB4W2ksMTddKSArCgkgICAgICAgICAgKGJldGFbMThdICogeFtpLDE4XSkgKwoJICAgICAgICAgIChiZXRhWzE5XSAqIHhbaSwxOV0pICsKCSAgICAgICAgICAoYmV0YVsyMF0gKiB4W2ksMjBdKSArCgkgICAgICAgICAgKGJldGFbMjFdICogeFtpLDIxXSkgKwoJICAgICAgICAgIChiZXRhWzIyXSAqIHhbaSwyMl0pICsKCSAgICAgICAgICAoYmV0YVsyM10gKiB4W2ksMjNdKQoJICAgICAgICAgICwgcHJlY2lzaW9uKQoJICB9CgkgICAgIyBDb21wdXRlIHByZWRpY3Rpb25zIGF0IGV2ZXJ5IHN0ZXAgb2YgdGhlIE1DTUMKCSAgICAjIEhPVyBETyBJIE1BS0UgVEhJUyBJTlRPIEEgRk9SIExPT1AgQUFBQUFBQQogIGZvciAoayBpbiAxOnByZWRDb3VudCkgewogICAgcHJlZFtrXSA8LSBiZXRhMCArIAogICAgICAgIChiZXRhWzFdICogeFByZWRbaywxXSkgKyAKICAgICAgICAoYmV0YVsyXSAqIHhQcmVkW2ssMl0pICsgCiAgICAgICAgKGJldGFbM10gKiB4UHJlZFtrLDNdKSArIAogICAgICAgIChiZXRhWzRdICogeFByZWRbayw0XSkgKwogICAgICAgIChiZXRhWzVdICogeFByZWRbayw1XSkgKwogICAgICAgIChiZXRhWzZdICogeFByZWRbayw2XSkgKyAKICAgICAgICAoYmV0YVs3XSAqIHhQcmVkW2ssN10pICsgCiAgICAgICAgKGJldGFbOF0gKiB4UHJlZFtrLDhdKSArIAogICAgICAgIChiZXRhWzldICogeFByZWRbayw5XSkgKwogICAgICAgIChiZXRhWzEwXSAqIHhQcmVkW2ssMTBdKSArCiAgICAgICAgKGJldGFbMTFdICogeFByZWRbaywxMV0pICsgCiAgICAgICAgKGJldGFbMTJdICogeFByZWRbaywxMl0pICsgCiAgICAgICAgKGJldGFbMTNdICogeFByZWRbaywxM10pICsgCiAgICAgICAgKGJldGFbMTRdICogeFByZWRbaywxNF0pICsKICAgICAgICAoYmV0YVsxNV0gKiB4UHJlZFtrLDE1XSkgKwogICAgICAgIChiZXRhWzE2XSAqIHhQcmVkW2ssMTZdKSArCiAgICAgICAgKGJldGFbMTddICogeFByZWRbaywxN10pICsKICAgICAgICAoYmV0YVsxOF0gKiB4UHJlZFtrLDE4XSkgKwogICAgICAgIChiZXRhWzE5XSAqIHhQcmVkW2ssMTldKSArCiAgICAgICAgKGJldGFbMjBdICogeFByZWRbaywyMF0pICsKICAgICAgICAoYmV0YVsyMV0gKiB4UHJlZFtrLDIxXSkgKwogICAgICAgIChiZXRhWzIyXSAqIHhQcmVkW2ssMjJdKSArCiAgICAgICAgKGJldGFbMjNdICogeFByZWRbaywyM10pIAogIH0KCn0iCgkKCXdyaXRlTGluZXMobW9kZWxTdHJpbmcsIGNvbj0iVEVNUG1vZGVsLnR4dCIpCmBgYAojIyMgUnVuIEpBR1MKYGBge3J9CgpwYXJhbWV0ZXJzID0gYygiYmV0YTAiKQpmb3IgKCBpIGluIDE6MjMpewogIHBhcmFtZXRlcnMgPSBjKHBhcmFtZXRlcnMsIHBhc3RlMCgiYmV0YVsiLGksIl0iKSkKfQpmb3IgKCBpIGluIDE6bnJvdyh4UHJlZCkpewogIHBhcmFtZXRlcnMgPSBjKHBhcmFtZXRlcnMsIHBhc3RlMCgicHJlZFsiLGksIl0iKSkKfQoKYWRhcHRTdGVwcyA9IDUwCmJ1cm5JblN0ZXBzID0gMTAwCm5DaGFpbnMgPSAyCnRoaW5TdGVwcyA9IDE3Cm51bVNhdmVkU3RlcHMgPSAxNTAwMAoKbkl0ZXIgPSBjZWlsaW5nKCAoIG51bVNhdmVkU3RlcHMgKiB0aGluU3RlcHMgKSAvIG5DaGFpbnMgKQoKc3RhcnRUaW1lID0gcHJvYy50aW1lKCkKIyBzaW5rKCJkZWJ1ZzIudHh0IikKcnVuSmFnc091dCA8LSBydW4uamFncyggbWV0aG9kPSJwYXJhbGxlbCIgLAogICAgICAgICAgICAgICAgICAgICAgICBtb2RlbD0iVEVNUG1vZGVsLnR4dCIgLAogICAgICAgICAgICAgICAgICAgICAgICBtb25pdG9yPXBhcmFtZXRlcnMgICwKICAgICAgICAgICAgICAgICAgICAgICAgZGF0YT1kYXRhTGlzdCAsCiAgICAgICAgICAgICAgICAgICAgICAgIG4uY2hhaW5zPW5DaGFpbnMgLAogICAgICAgICAgICAgICAgICAgICAgICBhZGFwdD1hZGFwdFN0ZXBzICwKICAgICAgICAgICAgICAgICAgICAgICAgYnVybmluPWJ1cm5JblN0ZXBzICwKICAgICAgICAgICAgICAgICAgICAgICAgc2FtcGxlPW51bVNhdmVkU3RlcHMgLAogICAgICAgICAgICAgICAgICAgICAgICB0aGluPXRoaW5TdGVwcyAsIHN1bW1hcmlzZT1GQUxTRSAsIHBsb3RzPUZBTFNFICkKc3RvcFRpbWUgPSBwcm9jLnRpbWUoKQpkdXJhdGlvbiA9IHN0b3BUaW1lIC0gc3RhcnRUaW1lCnNob3coZHVyYXRpb24pCmNvZGFTYW1wbGVzID0gYXMubWNtYy5saXN0KCBydW5KYWdzT3V0ICkKIyBzaW5rKCkKIyBzYXZlKCBjb2RhU2FtcGxlcyAsIGZpbGU9cGFzdGUoIkEyUnVuNCIsIk1jbWMuUmRhdGEiLHNlcD0iIikgKQojIHNhdmUuaW1hZ2UoZmlsZT0nQTJSdW40LlJEYXRhJykKYGBgCgojIyMgUmVzdWx0cwo=</div>
 
 
 
