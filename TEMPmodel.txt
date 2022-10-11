@@ -33,17 +33,18 @@
 	  mu[22] <- 1
 	  
 	  # Prior variances to reflect the expert information
-	  var0   <- 1.00000 # Set simply to 1
+	  Var0   <- 1.00000 # Set simply to 1
 	  for (i in 1:colCount) {
 	    var[i] <- 0.25
-	  }
+	  }  
 	}
 	# Model
 	model {
-	  beta0   ~ dnorm(mu0,  1/var0)
+	  beta0   ~ dnorm(mu0,  1/Var0)
 	  for (j in 1:colCount) {
 	    beta[j] ~ dnorm(mu[j], 1/var[j])
 	    }
+	  }
 	  
 	  
 	  # ... variance as it is ...
@@ -53,7 +54,7 @@
 	  
 	    # Normal Likelihood
 	    #for (i in 1:rowCount) {
-	    #beta0   ~ dnorm(mu0,  1/var0) + a 
+	    #beta0   ~ dnorm(mu0,  1/Var0) + a 
 	    y[i] ~ dnorm(beta0 + sum(beta[1:colCount]*x[i,1:colCount]) , precision)
 	  }
 	    # Compute predictions at every step of the MCMC
@@ -61,5 +62,5 @@
   for (k in 1:predCount) {
     pred[k] <- beta0 + sum(beta[1:colCount]*xPred[k,1:colCount])
   }
-}
 
+}
