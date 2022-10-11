@@ -2,13 +2,20 @@
 title: "AFL Modelling"
 output: html_notebook
 ---
+```{r}
+source("../../utilities/DBDA2E-utilities.R")
+library(ggplot2)
+library(ggpubr)
+library(ks)
+library(rjags)
+library(runjags)
+library(benchmarkme)
+```
 
 Read train and test sets from files.
 ```{r}
 train <- read.csv("../../data/train_ preprocessed_all_stats .csv")
 test <- read.csv("../../data/test_ preprocessed_all_stats .csv")
-
-
 ```
 
 # Modelling
@@ -29,6 +36,8 @@ dataList = list(
   colCount = ncol(x), 
   predCount = nrow(xPred)
 )
+
+
 
 
 
@@ -73,18 +82,17 @@ dataList = list(
 	  mu[22] <- 1
 	  
 	  # Prior variances to reflect the expert information
-	  Var0   <- 1.00000 # Set simply to 1
+	  var0   <- 1.00000 # Set simply to 1
 	  for (i in 1:colCount) {
 	    var[i] <- 0.25
-	  }  
+	  }
 	}
 	# Model
 	model {
-	  beta0   ~ dnorm(mu0,  1/Var0)
+	  beta0   ~ dnorm(mu0,  1/var0)
 	  for (j in 1:colCount) {
 	    beta[j] ~ dnorm(mu[j], 1/var[j])
 	    }
-	  }
 	  
 	  
 	  # ... variance as it is ...
@@ -94,7 +102,7 @@ dataList = list(
 	  
 	    # Normal Likelihood
 	    #for (i in 1:rowCount) {
-	    #beta0   ~ dnorm(mu0,  1/Var0) + a 
+	    #beta0   ~ dnorm(mu0,  1/var0) + a 
 	    y[i] ~ dnorm(beta0 + sum(beta[1:colCount]*x[i,1:colCount]) , precision)
 	  }
 	    # Compute predictions at every step of the MCMC
@@ -102,8 +110,8 @@ dataList = list(
   for (k in 1:predCount) {
     pred[k] <- beta0 + sum(beta[1:colCount]*xPred[k,1:colCount])
   }
-
-}"
+}
+"
 	
 	writeLines(modelString, con="TEMPmodel.txt")
 ```
@@ -111,7 +119,7 @@ dataList = list(
 ```{r}
 
 parameters = c("beta0")
-for ( i in 1:23){
+for ( i in 1:22){
   parameters = c(parameters, paste0("beta[",i,"]"))
 }
 for ( i in 1:nrow(xPred)){
@@ -122,7 +130,7 @@ adaptSteps = 50
 burnInSteps = 100
 nChains = 2
 thinSteps = 17
-numSavedSteps = 15000
+numSavedSteps = 250
 
 nIter = ceiling( ( numSavedSteps * thinSteps ) / nChains )
 
@@ -147,3 +155,40 @@ codaSamples = as.mcmc.list( runJagsOut )
 ```
 
 ### Results
+```{r}
+# # ============= Display Results ============
+# diagMCMC( codaSamples , parName="beta0" )
+# for ( i in 1:5){
+#   diagMCMC( codaSamples , parName=paste0("beta[",i,"]") )
+# }
+# 
+# 
+# graphics.off()
+# 
+# compVal <- data.frame("beta0" = 1, "beta[1]" = 90/100000, "beta[2]" = 1, "beta[3]" = 2, "beta[4]" =  1.2, "beta[5]" =  -1.5, check.names=FALSE)
+# summaryInfo <- smryMCMC( codaSamples = codaSamples , compVal = compVal, saveName="SummaryInfo" )
+# 
+# 
+# plotMCMC_HD( codaSamples = codaSamples, data = price_data, xName=c("Area","Bedrooms","Bathrooms","CarParks", "PropertyType") ,
+#              yName="SalePrice.100K.", compVal = compVal, preds = TRUE)
+# 
+# 
+# # ============ Predictive check ============
+# modes = summaryInfo[,"Mode"]
+# # 14 is the number of rows skipping beta and heading rows = (6 + 5 + 2)
+# predictions = modes[13:length(modes) - 1]
+# real = c(test$SalePrice.100K.)
+# length(predictions)
+# length(real)
+# n = length(real)
+# # MAE
+# sum(abs(predictions - real))/n
+# # MSE
+# mse = sum((real - predictions)^2)
+# mse
+# # RMSE
+# sqrt(mse/n)
+
+failed.JAGS("model")
+```
+
