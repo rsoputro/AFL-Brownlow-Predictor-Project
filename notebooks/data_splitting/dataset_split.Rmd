@@ -24,25 +24,44 @@ library(benchmarkme)
 
 Load in the Raw Stats
 ```{r}
-raw_stats = read.csv("../../data/raw_stats.csv")
+stat_df = read.csv("../../data/preprocessed_stats_per_round.csv")
+per_player_agg = read.csv("../../data/preprocessed_stats_per_player.csv")
+all_stats = read.csv("../../data/preprocessed_all_stats.csv")
 ```
 
 Splitting the raw_stats into train and test sets, with 10% test and 90% training data
 
  ## TODO Split only the last year of data for the test set, and the previous years as the training data. Don't do this random seeded splitting methodlogy.
 ```{r}
-set.seed(3456)
-trainIndex <- createDataPartition(raw_stats$Brownlow.Votes, p = .9, list = FALSE, times = 1)
-# Write train and test sets to files.
-write.csv(raw_stats[ trainIndex,], "../../data/train_set.csv", row.names=FALSE)
-write.csv(raw_stats[-trainIndex,], "../../data/test_set.csv", row.names=FALSE)
+
+split <- function(df, name, seed = 3456) {
+  set.seed(seed)
+  trainIndex <- createDataPartition(df$Brownlow.Votes, p = .9, list = FALSE, times = 1)
+  
+  # Write train and test sets to files.
+  write.csv(raw_stats[ trainIndex,], paste("../../data/train_", name, ".csv"), row.names=FALSE)
+  write.csv(raw_stats[-trainIndex,], paste("../../data/test_", name, ".csv"), row.names=FALSE)
+}
+
+split(stat_df, "preprocessed_stats_per_round")
+split(per_player_agg, "preprocessed_stats_per_player")
+split(all_stats, "preprocessed_all_stats")
+
+
 ```
 
 #### Analysis of Split
 Read train and test sets from files.
 ```{r}
-train <- read.csv("../../data/train_set.csv")
-test <- read.csv("../../data/test_set.csv")
+
+analyse <- function(df, name) {
+  train <- read.csv(paste("../../data/", name, ".csv"))
+  test <- read.csv(paste("../../data/", name, ".csv"))
+  
+  histCompare(train$Disposals, test$Disposals, "Disposals Train vs Test", "Disposals")
+
+}
+
 ```
 
 

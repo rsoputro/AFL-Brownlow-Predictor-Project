@@ -2,113 +2,116 @@
 title: "AFL Browne-Low Raw Stats, Analytics, and Pre Processing"
 output: html_notebook
 ---
-
-This R Notebook is responsible for pre processing the AFL stats so that they can be consumed by the JAGS model.
-
 This project was conducted by Thomas Johnstone, Richard, and Luke Mason, with supervision from RMIT Lecturer Dr Haydar Demirhan Bayesian Statistics 2022.
 
 
-##### Import Packages and source code
-These are the necesery packages and code needed to run the following code samples.
+This R Notebook is responsible for pre processing the AFL stats so that they can be consumed by the JAGS model.
+## Imports
 ```{r}
-source("../../utilities/DBDA2E-utilities.R") 
-source("../../utilities/MoreUtilities.R")
-library(ggplot2)
-library(ggpubr)
-library(ks)
-library(rjags)
-library(runjags)
-library(benchmarkme)
+library(tidyr)
 ```
 
 
-## Load in the Raw Stats
+## Load in the training set
 ```{r}
 raw_stats = read.csv("../../data/raw_stats.csv")
 ```
 
 
-## Exploratory Data Analysis
-
-### Attach the data to memory
-Attaching the data to memory allows us to access the keys of the columns without mentioning the dataset, gives us short hand access to the fields.
+Create the list of round names
 ```{r}
-attach(raw_stats)
-```
+# Create initial list of valid round names.
+valid_round_names <- c()
 
-### Peek at the stats
-```{r}
-head(raw_stats)
-```
-
-### A Summary of the stats
-```{r}
-summary(raw_stats)
-```
-
-### Histograms of frequencies
-These are the histograms of each stat field for all games over 10 years.
-
-##### Disposal Analysis
-
-```{r}
-print(names(raw_stats))
-```
-```{r}
-for (val in 1:ncol(raw_stats)) {
-  colName <- names(raw_stats)[val]
-  
-  
-  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs"), colName)) {
-    # Skip these fields
-    next
-  }
-  
-  title <- paste("Count of ", colName)
-  hist(as.matrix(raw_stats[val]), xlab=colName, main=title)
+# Create 23 round names.
+for (num in 1:23) {
+  # Append round names to valid round name list
+  valid_round_names <- c(valid_round_names, paste("R", num, sep=""))
 }
-```
 
+# Display.
+valid_round_names
+```
 
 ```{r}
 
+# Set of column names that are not numerical, or do not contribute to the calculation of brownlow points
+drops <- c("gameId","gameNumber", "Subs", "year", "team", "X..Played", "playerId", "displayName", "round")
 
-# table(price_data)
-# Table of counts per unique value.
-# table(SalePrice.100K.)
-# table(Area)
-table(Bedrooms)
-table(Bathrooms)
-table(CarParks)
-table(PropertyType)
+# Drop these column names from the raw stats into filtered dataframe.
+filtered_df <- raw_stats[ , !(names(raw_stats) %in% drops)]
 
-library(gridExtra)
-library(grid)
-table(price_data$PropertyType)
-tb <- table(price_data$PropertyType)
-df <- data.frame("Houses"=c(tb)[1],"Units"=c(tb)[2]) 
-grid.table(df)
+# Aggregate all fields in the filtered data frame, but group them by the list of values in field columns:
+# - playerId; so that all games of the player are aggregated together by mean
+# - displayName; so that we can have the name of the player during data analysis
+# - round; so that the player's games are not aggregated into 1 row, but instead 1 row per round.
+agg = aggregate(filtered_df, by=list(raw_stats$playerId, raw_stats$displayName, raw_stats$round), FUN = mean)
 
-# Density function.
-plot(kde(SalePrice.100K.), xlab="SalePrice(100K)", main="Density of Sale Pricings Per 100K")
-plot(kde(Area), xlab="Area(sqrm)", main="Density of Area(sqrm)")
-plot(kde(Bedrooms), xlab="Bedrooms", main="Density of Bedrooms")
-plot(kde(Bathrooms), xlab="Bathrooms",main="Density of Bathrooms")
-plot(kde(CarParks), xlab="Car Parks", main="Density of Car Parks")
-plot(kde(PropertyType), xlab="Property Type", main="Density of Property Type")
+# Remove rows who's round is not in the list of valid round names
+# This is because the finals rounds exist after round 22 and there are no brownlow points assigned to players during these games, which makes these rows redundant.
+df1 <- agg[ agg$Group.3 %in% valid_round_names, ]
 
-# Scatterplot of each independant variable against the dependant variable.
-# plot(Area, SalePrice.100K., main="Sale Price(100K) vs Area(sqrm)", pch=5)
-# plot(Bedrooms, SalePrice.100K., main="Sale Pric(100K)e vs Bedrooms", pch=5)
-# plot(Bathrooms, SalePrice.100K., main="Sale Price(100K) vs Bathrooms", pch=5)
-# plot(CarParks, SalePrice.100K., main="Sale Price(100K) vs Car Parks", pch=5)
-# plot(PropertyType, SalePrice.100K., main="Sale Price(100K) vs Property Type", pch=5)
+stat_cols = c("Behinds", "Bounces", "Brownlow.Votes", "Clangers", "Clearances", "Contested.Marks", "Contested.Possessions",
+    "Disposals", "Frees", "Frees.Against", "Goal.Assists", "Goals", "Handballs",
+    "Hit.Outs", "Inside.50s", "Kicks", "Marks", "Marks.Inside.50", "One.Percenters", "Rebounds",
+    "Tackles", "Uncontested.Possessions")
 
-library(car)
-scatterplot(SalePrice.100K. ~ Area,         data=price_data, xlab="Area",          ylab="Sale Price (100K)", main="Sale Price(100K) vs Area(sqrm)")
-scatterplot(SalePrice.100K. ~ Bedrooms,     data=price_data, xlab="Bedrooms",      ylab="Sale Price (100K)", main="Sale Price(100K)e vs Bedrooms")
-scatterplot(SalePrice.100K. ~ Bathrooms,    data=price_data, xlab="Bathrooms",     ylab="Sale Price (100K)", main="Sale Price(100K) vs Bathrooms")
-scatterplot(SalePrice.100K. ~ CarParks,     data=price_data, xlab="Car Parks",     ylab="Sale Price (100K)", main="Sale Price(100K) vs Car Parks")
-# scatterplot(SalePrice.100K. ~ PropertyType, data=price_data, xlab="Property Type", ylab="Sale Price (100K)", main="Sale Price(100K) vs Property Type")
+df2 = pivot_longer(df1, names_to="stat", values_to="value", cols=all_of(stat_cols))
+df3 = pivot_wider(df2, id_cols = c("Group.1", "Group.2", "stat"), names_from = "Group.3")
 
+# Order the columns
+col_order = c("Group.1", "Group.2", "stat", valid_round_names)
+df4 <- df3[, col_order]
+
+# Rename columns
+names(df4)[names(df4) == 'Group.1'] <- 'playerId'
+names(df4)[names(df4) == 'Group.2'] <- 'displayName'
+
+df4
 ```
+
+
+
+
+```{r}
+# Rename columns
+names(df1)[names(df1) == 'Group.1'] <- 'playerId'
+names(df1)[names(df1) == 'Group.2'] <- 'displayName'
+names(df1)[names(df1) == 'Group.3'] <- 'round'
+
+stat_df <- df1[order(df1$playerId, df1$displayName, df1$round),]
+stat_df
+```
+```{r}
+filtered_df2 <- filtered_df[ , !(names(filtered_df) %in% c("rounds"))]
+# Aggregate all fields in the filtered data frame, but group them by the list of values in field columns:
+# - playerId; so that all games of the player are aggregated together by mean
+# - displayName; so that we can have the name of the player during data analysis
+# - round; so that the player's games are not aggregated into 1 row, but instead 1 row per round.
+per_player_agg = aggregate(filtered_df, by=list(raw_stats$playerId, raw_stats$displayName), FUN = mean)
+
+# Rename columns
+names(per_player_agg)[names(per_player_agg) == 'Group.1'] <- 'playerId'
+names(per_player_agg)[names(per_player_agg) == 'Group.2'] <- 'displayName'
+
+ppa <- per_player_agg[order(per_player_agg$playerId, per_player_agg$displayName),]
+ppa
+```
+```{r}
+all_stats <- raw_stats[ raw_stats$round %in% valid_round_names, ]
+all_stats
+```
+
+
+## Save datasets
+```{r}
+write.csv(stat_df, "../../data/preprocessed_stats_per_unque_round.csv", row.names=FALSE)
+write.csv(per_player_agg, "../../data/preprocessed_stats_per_career.csv", row.names=FALSE)
+write.csv(all_stats, "../../data/preprocessed_all_stats.csv", row.names=FALSE)
+```
+    
+
+
+
+
+

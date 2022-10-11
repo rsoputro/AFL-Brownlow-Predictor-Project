@@ -1,0 +1,104 @@
+---
+title: "Raw Exploratory Data Analysis"
+output: html_notebook
+---
+This project was conducted by Thomas Johnstone, Richard, and Luke Mason, with supervision from RMIT Lecturer Dr Haydar Demirhan Bayesian Statistics 2022.
+
+This notebooks purpose is to explore the raw data before it has been pre-processed to give any insights on it before decisions are made to either preprocess it and what needs can or can't be met with the current data.
+
+##### Import Packages and source code
+These are the necessary packages and code needed to run the following code samples.
+```{r}
+source("../../utilities/DBDA2E-utilities.R") 
+source("../../utilities/MoreUtilities.R")
+library(ggplot2)
+library(ggpubr)
+library(ks)
+library(rjags)
+library(runjags)
+library(benchmarkme)
+```
+
+
+## Load in the Raw Stats
+```{r}
+raw_stats = read.csv("../../data/raw_stats.csv")
+```
+
+
+## Exploratory Data Analysis
+
+### Attach the data to memory
+Attaching the data to memory allows us to access the keys of the columns without mentioning the dataset, gives us short hand access to the fields.
+```{r}
+attach(raw_stats)
+```
+
+### Peek at the stats
+```{r}
+head(raw_stats)
+```
+
+### A Summary of the stats
+```{r}
+summary(raw_stats)
+```
+
+### Histograms of frequencies
+These are the histograms of each stat field for all games over 10 years.
+
+```{r}
+print(names(raw_stats))
+```
+### Analysis of the raw data
+```{r}
+for (val in 1:ncol(raw_stats)) {
+  colName <- names(raw_stats)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs"), colName)) {
+    # Skip these fields
+    next
+  }
+  
+  title <- paste("Count of ", colName)
+  hist(as.matrix(raw_stats[val]), xlab=colName, main=title)
+}
+```
+
+```{r}
+table(raw_stats$round)
+```
+
+# Density function.
+```{r}
+for (val in 1:ncol(raw_stats)) {
+  colName <- names(raw_stats)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs", "Hit.Outs", "Brownlow.Votes", "Bounces"), colName)) {
+    # Skip these fields
+    next
+  }
+  print(colName)
+  title <- paste("Density of ", colName)
+  plot(kde(unlist(raw_stats[val])), xlab=colName, main=title)
+}
+```
+
+
+# Scatterplot of brownlow votes vs each stat type
+```{r}
+for (val in 1:ncol(raw_stats)) {
+  colName <- names(raw_stats)[val]
+  
+  
+  if (purrr::has_element(c("displayName", "gameId", "playerId", "team", "year", "round", "gameNumber", "Subs", "Brownlow.Votes"), colName)) {
+    # Skip these fields
+    next
+  }
+  title <- paste("Brownlow Votes vs ", colName)
+  plot(unlist(raw_stats["Brownlow.Votes"]) ~ unlist(raw_stats[val]), data=raw_stats, xlab=colName, ylab="Brownlow Votes", main=title)
+}
+
+```
