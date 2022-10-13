@@ -21,12 +21,11 @@ test <- read.csv("../../data/test_ preprocessed_all_stats .csv")
 # Modelling
 
 ```{r}
-summary(train)
 y <- train$Brownlow.Votes
 x <- as.matrix(train[,8:30])
-x <- -x[,-16]
+x <- x[,-15]
 xPred = as.matrix(test[,8:30])
-xPred <- -xPred[,-16]
+xPred <- -xPred[,-15]
 
 dataList = list(
   x = x,
@@ -37,7 +36,7 @@ dataList = list(
   predCount = nrow(xPred)
 )
 
-
+summary(x)
 
 
 
@@ -58,51 +57,51 @@ dataList = list(
 	  # Set to overall mean a priori based on the interpretation of constant term in regression
 	  
 	  mu0 <- yMean 
-	  mu[1] <- 0
-	  mu[2] <- 2
-	  mu[3] <- 2
-	  mu[4] <- 1
-	  mu[5] <- 2
-	  mu[6] <- 3
-	  mu[7] <- 1
-	  mu[8] <- 0
-	  mu[9] <- 1
-	  mu[10] <- 0
-	  mu[11] <- 2
-	  mu[12] <- 3
-	  mu[13] <- 1
-	  mu[14] <- 1
-	  mu[15] <- 0
-	  mu[16] <- 3
-	  mu[17] <- 1
-	  mu[18] <- 1
-	  mu[19] <- 2
-	  mu[20] <- 0
-	  mu[21] <- 1
-	  mu[22] <- 1
+	  mu[1] <- 16.37
+	  mu[2] <- 9.359
+	  mu[3] <- 4.009
+	  mu[4] <- 7.01
+	  mu[5] <- 0.5516
+	  mu[6] <- 0.37973
+	  mu[7] <- 1.735
+	  mu[8] <- 2.875
+	  mu[9] <- 1.599
+	  mu[10] <- 2.286
+	  mu[11] <- 1.663
+	  mu[12] <- 2.274
+	  mu[13] <- 0.8302
+	  mu[14] <- 0.8329
+	  mu[15] <- 6.276
+	  mu[16] <- 9.992
+	  mu[17] <- 0.487
+	  mu[18] <- 0.511
+	  mu[19] <- 2.154
+	  mu[20] <- 0.3222
+	  mu[21] <- 0.3769
+	  mu[22] <- 81.38
 	  
-	  # Prior variances to reflect the expert information
-	  var0   <- 1.00000 # Set simply to 1
+	  # Prior Variances to reflect the expert information
+	  Var0   <- 1.00000 # Set simply to 1
 	  for (i in 1:colCount) {
-	    var[i] <- 0.25
+	    Var[i] <- 0.25
 	  }
 	}
 	# Model
 	model {
-	  beta0   ~ dnorm(mu0,  1/var0)
+	  beta0   ~ dnorm(mu0,  1/Var0)
 	  for (j in 1:colCount) {
-	    beta[j] ~ dnorm(mu[j], 1/var[j])
+	    beta[j] ~ dnorm(mu[j], 1/Var[j])
 	    }
 	  
 	  
-	  # ... variance as it is ...
+	  # ... Variance as it is ...
 	  precision ~ dexp(1/0.25) 
 	  
 	  for (i in 1:rowCount) {
 	  
 	    # Normal Likelihood
 	    #for (i in 1:rowCount) {
-	    #beta0   ~ dnorm(mu0,  1/var0) + a 
+	    #beta0   ~ dnorm(mu0,  1/Var0) + a 
 	    y[i] ~ dnorm(beta0 + sum(beta[1:colCount]*x[i,1:colCount]) , precision)
 	  }
 	    # Compute predictions at every step of the MCMC
