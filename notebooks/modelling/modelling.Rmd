@@ -181,21 +181,48 @@ codaSamples = as.mcmc.list( runJagsOut )
 
 ### Results
 ```{r}
-# # ============= Display Results ============
-# diagMCMC( codaSamples , parName="beta0" )
-# for ( i in 1:5){
-#   diagMCMC( codaSamples , parName=paste0("beta[",i,"]") )
-# }
-# 
-# 
-# graphics.off()
-# 
-# compVal <- data.frame("beta0" = 1, "beta[1]" = 90/100000, "beta[2]" = 1, "beta[3]" = 2, "beta[4]" =  1.2, "beta[5]" =  -1.5, check.names=FALSE)
-# summaryInfo <- smryMCMC( codaSamples = codaSamples , compVal = compVal, saveName="SummaryInfo" )
-# 
-# 
-# plotMCMC_HD( codaSamples = codaSamples, data = price_data, xName=c("Area","Bedrooms","Bathrooms","CarParks", "PropertyType") ,
-#              yName="SalePrice.100K.", compVal = compVal, preds = TRUE)
+# ============= Display Results ============
+diagMCMC( codaSamples , parName="beta0" )
+for ( i in 1:22){
+  diagMCMC( codaSamples , parName=paste0("beta[",i,"]") )
+}
+
+compVal <- data.frame(
+  "beta0" = 1, 
+  "beta[1]" = 15,
+  "beta[2]" = 10, 
+  "beta[3]" = 5, 
+  "beta[4]" =  0.7, 
+  "beta[5]" =  0.5,
+  "beta[6]" =  2,
+  "beta[7]" =  4,
+  "beta[8]" =  1,
+  "beta[9]" =  2,
+  "beta[10]" =  4,
+  "beta[11]" =  1,
+  "beta[12]" =  2,
+  "beta[13]" =  1,
+  "beta[14]" =  1.5,
+  "beta[15]" =  1.3,
+  "beta[16]" =  1.3,
+  "beta[17]" =  7,
+  "beta[18]" =  10,
+  "beta[19]" =  1,
+  "beta[20]" =  3,
+  "beta[21]" =  0.8,
+  check.names=FALSE)
+
+#===============================================================================
+#smryMCMC 
+
+#===============================================================================
+
+
+summaryInfo <- smryMCMC( codaSamples = codaSamples , compVal = compVal, saveName="SummaryInfo" )
+
+
+plotMCMC_HD( codaSamples = codaSamples, data = price_data, xName=c("disposals","kicks","handballs","goals", "behind","hitouts", "tackles", "rebound", "inside50s","clearances","clangers","frees","frees_against","contested_possessions","uncontested_possesions","contested_marks","marks","marks_inside50") ,
+             yName="Brownlow.", compVal = compVal, preds = TRUE)
 # 
 # 
 # # ============ Predictive check ============
