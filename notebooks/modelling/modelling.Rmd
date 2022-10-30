@@ -200,8 +200,8 @@ plotMCMC_HD( codaSamples = codaSamples, data = train, xName=c("Disposals", "Kick
 ```{r}
 
 modes = summaryInfo[,"Mode"]
-# 14 is the number of rows skipping beta and heading rows = (6 + 5 + 2)
-predictions = modes[24:length(modes) - 1]
+# 25 is the number of rows skipping beta and heading rows
+predictions = modes[25:length(modes) - 1]
 real = c(test$Brownlow.Votes)
 length(predictions)
 length(real)
