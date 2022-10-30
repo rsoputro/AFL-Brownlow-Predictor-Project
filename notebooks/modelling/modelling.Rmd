@@ -55,29 +55,6 @@ dataList = list(
 	  # predictor increases the log odds of outcome 1.
 	  # Set to overall mean a priori based on the interpretation of constant term in regression
 	  
-	  # mu0 <- yMean 
-	  # mu[1] <- 16.37
-	  # mu[2] <- 9.359
-	  # mu[3] <- 4.009
-	  # mu[4] <- 7.01
-	  # mu[5] <- 0.5516
-	  # mu[6] <- 0.37973
-	  # mu[7] <- 1.735
-	  # mu[8] <- 2.875
-	  # mu[9] <- 1.599
-	  # mu[10] <- 2.286
-	  # mu[11] <- 1.663
-	  # mu[12] <- 2.274
-	  # mu[13] <- 0.8302
-	  # mu[14] <- 0.8329
-	  # mu[15] <- 6.276
-	  # mu[16] <- 9.992
-	  # mu[17] <- 0.487
-	  # mu[18] <- 0.511
-	  # mu[19] <- 2.154
-	  # mu[20] <- 0.3222
-	  # mu[21] <- 0.3769
-	  
 	  mu0 <- yMean
 	  mu[1] <- 15
 	  mu[2] <- 10
